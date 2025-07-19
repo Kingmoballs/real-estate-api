@@ -3,8 +3,6 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 require("dotenv").config()
 
-const authRoutes = require("./routes/authRoutes")
-
 const app = express()
 
 //Middleware
@@ -16,8 +14,11 @@ app.get("/", (req, res) => {
     res.send("Real estate api is running...")
 })
 
+const authRoutes = require("./routes/authRoutes")
+const propertyRoutes = require("./routes/propertyRoutes")
 //Routes
 app.use("/api/auth", authRoutes)
+app.use("/api/properties", propertyRoutes)
 
 //Start Server
 const PORT = process.env.PORT || 5000
