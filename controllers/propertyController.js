@@ -4,7 +4,11 @@ const Property = require("../models/Property");
 //@route POST /api/properties
 exports.createProperty = async (req, res) => {
     try{
-        const newProperty = new Property(req.body);
+        const propertyData = {
+            ...req.body,
+            postedBy: req.user.id,
+        }
+        const newProperty = new Property(propertyData);
         const saved = await newProperty.save();
         res.status(201).json(saved);
     }
@@ -29,7 +33,7 @@ exports.getAllProperties = async (req, res) => {
 //@route GET /api/properties/:id
 exports.getPropertyById = async (req, res) => {
     try{
-        const property = await Property.findById(req.params.id);
+        const property = await Property.findById(req.params.id).populate("postedBy", "name phone");
         if (!property)  return res.status(404).json({ message: "Not Found" });
         res.status(200).json(property)
     }
@@ -42,6 +46,16 @@ exports.getPropertyById = async (req, res) => {
 //@route PUT /api/properties/:id
 exports.updateProperty = async (req, res) => {
     try{
+        const property = await Property.findById(req.params.id);
+        if (!property) {
+            return res.status(404).json({ message: "Property not found" });
+        }
+
+        // Check if the logged-in user is the owner
+        if (property.postedBy.toString() !== req.user.id) {
+            return res.status(403).json({ message: "Not authorized to update this property" });
+        }
+
         const updated = await  Property.findByIdAndUpdate(req.params.id, req.body, {
             new: true
         });
@@ -56,8 +70,18 @@ exports.updateProperty = async (req, res) => {
 //@route DELETE /api/properties/:id
 exports.deleteProperty = async (req, res) => {
     try{
+        const property = await Property.findById(req.params.id);
+        if (!property) {
+            return res.status(404).json({ message: "Property not found" });
+        }
+
+        // Check if the logged-in user is the owner
+        if (property.postedBy.toString() !== req.user.id) {
+            return res.status(403).json({ message: "Not authorized to delete this property" });
+        }
+
         await Property.findByIdAndDelete(req.params.id) 
-        res.status(204).end()
+        res.status(200).json({ message: "Property deleted successfully" })
         
     }
     catch (err) {
