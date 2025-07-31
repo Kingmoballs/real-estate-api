@@ -17,10 +17,12 @@ app.get("/", (req, res) => {
 const authRoutes = require("./routes/authRoutes")
 const propertyRoutes = require("./routes/propertyRoutes")
 const bookingRoutes = require("./routes/bookingRoutes")
+const messageRoutes = require("./routes/messageRoutes")
 //Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/properties", propertyRoutes)
 app.use("/api/bookings", bookingRoutes)
+app.use("/api/messages", messageRoutes)
 
 //Start Server
 const PORT = process.env.PORT || 5000

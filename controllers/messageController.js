@@ -1,0 +1,81 @@
+const Message = require("../models/Message");
+const Property = require("../models/Property");
+
+// Send a message
+exports.sendMessage = async(req, res) => {
+    const { propertyId, content } = req.body;
+
+    try{
+        const property = await Property.findById(propertyId);
+        if (!property) {
+            return res.status(404).json({ message: "Property not found" })
+        }
+
+        const message = new Message({
+            property: propertyId,
+            agent: property.postedBy,
+            senderName: req.user.name,
+            senderEmail: req.user.email,
+            content,
+        })
+
+        const savedMessage = await message.save();
+        res.status(201).json(savedMessage);
+    }
+    catch (err) {
+        res.status(501).json({ message: err.message })
+    }
+};
+
+// Get all messages for an Agent
+
+exports.getMessagesForAgent = async(req, res) => {
+    try{
+        const messages = await Message.find({ agent: req.user.id }).populate("property", "title");
+        res.status(200).json(messages)
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+// Get all messages sent by a user
+exports.getMessagesByUserEmail = async(req, res) => {
+    const { email } = req.query;
+    if (!email) {
+        return res.status(400).json({ message: "Email is required" })
+    }
+
+    try {
+        const messages = await Message.find({ senderEmail: email }).sort({ createdAt: -1 });
+        res.status(200).json(messages)
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+exports.replyToMessage = async(req, res) => {
+    const { messageId } = req.params;
+    const { reply } = req.body;
+
+    try {
+        const message = await Message.findById(messageId);
+        if (!message) {
+            return res.status(404).json({ message: "Message not found" })
+        }
+
+        if (message.agent.toString() !== req.user.id) {
+            res.status(404).json({ message: "Unauthorized to reply to this message" })
+        }
+
+        message.reply = reply;
+        message.isReplied = true;
+        await message.save();
+
+        res.status(200).json({ message: "Message sent", data: message })
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
