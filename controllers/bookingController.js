@@ -3,7 +3,7 @@ const Property = require("../models/Property");
 
 exports.createBooking = async(req, res) => {
     try{
-        const { property, guestName, guestEmail, guestPhone, checkInDate, checkOutDate, message } = req.body;
+        const { property, checkInDate, checkOutDate, message } = req.body;
         const apartment = await Property.findById(property);
         if (!apartment || apartment.propertyType !== "serviced") {
             return res.status(400). json({ error: "invalid of non-serviced apartment selected" })
@@ -21,9 +21,9 @@ exports.createBooking = async(req, res) => {
 
         const booking = new Booking({
             property,
-            guestName,
-            guestEmail,
-            guestPhone,
+            guestName: req.user.name,
+            guestEmail: req.user.email,
+            guestPhone: req.user.phone,
             checkInDate,
             checkOutDate,
             totalPrice,

@@ -55,6 +55,7 @@ exports.getMessagesByUserEmail = async(req, res) => {
     }
 }
 
+// Reply to messages sent by user
 exports.replyToMessage = async(req, res) => {
     const { messageId } = req.params;
     const { reply } = req.body;
@@ -74,6 +75,48 @@ exports.replyToMessage = async(req, res) => {
         await message.save();
 
         res.status(200).json({ message: "Message sent", data: message })
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+//Get unread messages sent by user
+
+exports.getUnreadMessagesForAgent = async(req, res) => {
+    try {
+        const unreadMessages = await Message.find({
+            agent: req.user.id,
+            isRead: false,
+        })
+        .populate(("property", "tilte"))
+        .sort({ createdAt: -1 });
+
+        res.status(200).json(unreadMessages)
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+// Mark opened message as read
+
+exports.markMessageAsRead = async(req, res) => {
+    const { messageId } = req.params;
+
+    try {
+        const message = await Message.findById(messageId);
+        if (!message) {
+            res.status(404).json({ message: "Message not found" })
+        }
+        if (message.agent.toString() !== req.user.id) {
+            res.status(404).json({ message: "Unauthorized" })
+        }
+
+        message.isRead = true;
+        await message.save()
+
+        res.status(200).json({ message: "Mark as read" })
     }
     catch (err) {
         res.status(500).json({ message: err.message })

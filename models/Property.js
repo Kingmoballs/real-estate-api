@@ -20,7 +20,9 @@ const propertySchema = new mongoose.Schema(
         },
         price: {
             type: Number,
-            required: true,
+            required: function() {
+                return this.propertyType === "sale";
+            },
         },
         propertyType: {
             type: String,

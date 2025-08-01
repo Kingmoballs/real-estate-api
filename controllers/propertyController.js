@@ -7,6 +7,9 @@ exports.createProperty = async (req, res) => {
         const propertyData = {
             ...req.body,
             postedBy: req.user.id,
+            agentName: req.user.name,
+            agentEmail: req.user.email,
+            agentPhone: req.user.phone
         }
         const newProperty = new Property(propertyData);
         const saved = await newProperty.save();
