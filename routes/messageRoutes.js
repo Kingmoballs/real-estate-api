@@ -6,7 +6,8 @@ const {
     getMessagesByUserEmail, 
     replyToMessage,
     markMessageAsRead,
-    getUnreadMessagesForAgent
+    getUnreadMessagesForAgent,
+    deleteMessage
 
 } = require("../controllers/messageController");
 const authenticateUser = require("../middleware/authMiddleware");
@@ -16,6 +17,7 @@ router.get("/inbox", authenticateUser, getMessagesForAgent);
 router.get("/user-inbox", authenticateUser, getMessagesByUserEmail);
 router.post("/reply/:messageId", authenticateUser, replyToMessage) ;
 router.patch("/mark-read/:messageId", authenticateUser, markMessageAsRead);
-router.get("/notifications/unread", authenticateUser, getUnreadMessagesForAgent)
+router.get("/notifications/unread", authenticateUser, getUnreadMessagesForAgent);
+router.delete("/messages/:messageId", authenticateUser, deleteMessage)
 
 module.exports = router;

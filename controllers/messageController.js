@@ -122,3 +122,27 @@ exports.markMessageAsRead = async(req, res) => {
         res.status(500).json({ message: err.message })
     }
 }
+
+//Delete a message
+
+exports.deleteMessage = async(req, res) => {
+    try{
+        const { messageId } = req.params;
+        const userId = req.user.id;
+        const message = await Message.findById(messageId)
+
+        if (!message) {
+            return res.status(404).json({ message: "Message not found" })
+        }
+
+        if (message.sender.toString() !== userId && message.recipient.toString() !== userId) {
+            return res.status(404).json({ message: "Unauthorized to delete this message" })
+        }
+
+        message.deleted = true;
+        await Message.findByIdAndDelete(messageId);
+    }
+    catch {
+
+    }
+}

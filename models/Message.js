@@ -29,6 +29,10 @@ const messageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    deleted: {
+        type: Boolean,
+        required: true,
+    },
     sentAt: {
         type: Date,
         default: Date.now()
