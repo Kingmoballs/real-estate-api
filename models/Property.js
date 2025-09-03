@@ -18,6 +18,14 @@ const propertySchema = new mongoose.Schema(
             type: [String],
             required: true,
         },
+        bedrooms: {
+            type: Number,
+            default: 0
+        },
+        bathrooms: {
+            type: Number,
+            default: 0
+        },
         price: {
             type: Number,
             required: function() {

@@ -24,7 +24,33 @@ exports.createProperty = async (req, res) => {
 //@route GET /api/properties
 exports.getAllProperties = async (req, res) => {
     try{
-        const properties = await Property.find();
+        const { location, type, minPrice, maxPrice, bedrooms, bathrooms } = req.query
+
+        let filters = {};
+
+        if (location) {
+            filters.location = { $regex: location, $options: "i" }
+        }
+
+        if (type) {
+            filters.properyType = type
+        }
+
+        if (minPrice || maxPrice) {
+            filters.price = {}
+            if (minPrice) filters.price.$gte = Number(minPrice);
+            if (maxPrice) filters.price.$lte = Number(maxPrice)
+        }
+        
+        if (bedrooms) {
+            filters.bedrooms = { $gte: Number(bedrooms) }
+        }
+
+        if (bathrooms) {
+            filters.bathrooms = { $lte: Number(bathrooms) }
+        }
+
+        const properties = await Property.find(filters).sort({ createdAt: -1 });
         res.status(200).json(properties)
     }
     catch (err) {
