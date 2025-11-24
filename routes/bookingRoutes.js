@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { createBooking } = require("../controllers/bookingController");
-const authenticateUser = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
+const { createBookingSchema } = require("../validators/bookingValidator");
+const validate = require("../middleware/validateMiddleware")
 
 
-router.post("/", authenticateUser, createBooking)
+router.post("/", protect, validate(createBookingSchema), createBooking)
 
 module.exports = router

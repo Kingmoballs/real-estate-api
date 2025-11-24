@@ -2,30 +2,50 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
 const protect = async (req, res, next) => {
-    let token;
-
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        try {
+    try {
+        let token;
+        
+        // 1. Check Authorization header
+        if (
+            req.headers.authorization &&
+            req.headers.authorization.startsWith("Bearer")
+        ) {
             token = req.headers.authorization.split(" ")[1];
-
-            //Verify Token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
-            //Attach user to request (excluding password)
-            req.user = await User.findById(decoded.id).select("-password")
-
-            next();
-
         }
-        catch (error) {
-            return res.status(401).json({ message: "Not authorized; token failed" })
+
+        // 2. If no token, block request
+        if (!token) 
+            return res.status(401).json({ message: "Not authorized. No token provided" });
+
+        // 3. Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // 4. Ensure user still exists
+        const user = await User.findById(decoded.id).select("-password");
+        if (!user) {
+            return res.status(401).json({ message: "User no longer exists." });
         }
-    }
 
-    if (!token) {
-        return res.status(401).json({ message: "Not authorized; No token" })
-    }
+        // 5. Attach user to request
+        req.user = user;
 
+        next();
+    }
+    
+    catch (error) {
+        console.error("Auth Error:", error);
+        return res.status(401).json({ message: "Not authorized. Invalid token." });
+    }
 }
 
-module.exports = protect
+// Only agents can crate property
+
+const requireAgent = async (req, res, next) => {
+    if (req.user.role !== "agent") {
+        return res.status(403).json({ message: "Only agents can perform this action" })
+    }
+
+    next()
+}
+
+module.exports = { protect, requireAgent };

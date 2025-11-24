@@ -10,14 +10,16 @@ const {
     deleteMessage
 
 } = require("../controllers/messageController");
-const authenticateUser = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
+const { sendMessageSchema } = require("../validators/messageValidator");
+const validate = require("../middleware/validateMiddleware");
 
-router.post("/send", authenticateUser, sendMessage);
-router.get("/inbox", authenticateUser, getMessagesForAgent);
-router.get("/user-inbox", authenticateUser, getMessagesByUserEmail);
-router.post("/reply/:messageId", authenticateUser, replyToMessage) ;
-router.patch("/mark-read/:messageId", authenticateUser, markMessageAsRead);
-router.get("/notifications/unread", authenticateUser, getUnreadMessagesForAgent);
-router.delete("/messages/:messageId", authenticateUser, deleteMessage)
+router.post("/send", protect, validate(sendMessageSchema),  sendMessage);
+router.get("/inbox", protect, getMessagesForAgent);
+router.get("/user-inbox", protect, getMessagesByUserEmail);
+router.post("/reply/:messageId", protect, replyToMessage) ;
+router.patch("/mark-read/:messageId", protect, markMessageAsRead);
+router.get("/notifications/unread", protect, getUnreadMessagesForAgent);
+router.delete("/messages/:messageId", protect, deleteMessage)
 
 module.exports = router;
