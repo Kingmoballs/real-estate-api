@@ -1,9 +1,17 @@
-const errorHandler = (err, req, res, next) => {
-    console.error("Error:", err);
+const logger = require("./logger");
 
-    res.status(err.statusCode || 500).json({
-        status: "error",
-        message: "err.message" || "Internal server error",
+const errorHandler = (err, req, res, next) => {
+    const statusCode = err.status || 500;
+    const message = err.message || "Internal Server Error";
+
+    // Log full error with stack trace
+    logger.error(
+        `${message} - ${req.originalUrl} - ${req.method} - ${req.ip}\n${err.stack}`
+    );
+
+    res.status(statusCode).json({
+        message,
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
     });
 };
 

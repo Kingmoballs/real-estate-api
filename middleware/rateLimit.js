@@ -14,7 +14,7 @@ const apiLimiter = rateLimit({
 
 // More strict limit for sensitive routes
 const authLimiter = rateLimit({
-    windowsMs: 10 * 60 * 1000,
+    windowMs: 10 * 60 * 1000,
     max: 10,
     message: {
         status: "error",
