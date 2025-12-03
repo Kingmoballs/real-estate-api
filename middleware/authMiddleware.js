@@ -4,12 +4,14 @@ const User = require("../models/user");
 const protect = async (req, res, next) => {
     try {
         let token;
+
+        // Try reading token from cookies
+        if (req.cookies?.token) {
+            token = req.cookies.token;
+        }
         
-        // 1. Check Authorization header
-        if (
-            req.headers.authorization &&
-            req.headers.authorization.startsWith("Bearer")
-        ) {
+        // Fallback: Bearer token for Mobile app and Postman
+        if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
             token = req.headers.authorization.split(" ")[1];
         }
 
@@ -26,9 +28,9 @@ const protect = async (req, res, next) => {
             return res.status(401).json({ message: "User no longer exists." });
         }
 
-        // 5. Attach user to request
+        // 5. Grant access
         req.user = user;
-
+        
         next();
     }
     

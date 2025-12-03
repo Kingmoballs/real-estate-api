@@ -1,12 +1,40 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config()
+const helmet = require("helmet");
+require("dotenv").config();
+
 
 const app = express();
 
-//Middleware
-app.use(express.json())
+//Security Middleware
+app.use(helmet()); //set security headers
+
+app.disable("x-powered-by"); //hide express header
+
+if (process.env.NODE_ENV === "production") {
+    app.use(
+        helmet.hsts({
+            maxAge: 31536000,
+            includeSubDomains: true,
+            preload: true
+        })
+    );
+}
+
+//Sanitation and cleaning
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const hpp = require("hpp");
+
+app.use(mongoSanitize());
+app.use(xss());
+app.use(hpp());
+
+//Limit incoming body size
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
 app.use(cors());
 
 const httpLogger = require("./middleware/httpLogger");
