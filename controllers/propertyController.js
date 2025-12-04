@@ -5,6 +5,10 @@ const { cloudinary } = require("../middleware/uploadMiddleware")
 //@route POST /api/properties
 exports.createProperty = async (req, res) => {
     try{
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: "At least a image is required" });
+        }
+
         const images = req.files.map(file => ({
             url: file.path,
             public_id: file.filename

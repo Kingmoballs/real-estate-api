@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 const createPropertySchema = Joi.object({
-    title: Joi.string().min(3).required(),
+    title: Joi.string().min(3).trim().max(200).required(),
     description: Joi.string().min(10).required(),
     location: Joi.string().required(),
     price: Joi.when("propertyType", {
@@ -21,7 +21,7 @@ const createPropertySchema = Joi.object({
 });
 
 const updatePropertySchema = Joi.object({
-    title: Joi.string().min(3).required(),
+    title: Joi.string().min(3).trim().max(200).required(),
     description: Joi.string().min(10).required(),
     location:Joi.string().required(),
     price: Joi.number().positive().required(),

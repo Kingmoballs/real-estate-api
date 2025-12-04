@@ -5,6 +5,7 @@ const { protect, requireAgent } = require("../middleware/authMiddleware");
 const { createPropertySchema, updatePropertySchema } = require("../validators/propertyValidator");
 const validate = require("../middleware/validateMiddleware");
 const { upload } = require("../middleware/uploadMiddleware");
+const uploadError = require("../middleware/uploadErrorMiddleware");
 
 router.post(
     "/", 
@@ -12,6 +13,7 @@ router.post(
     requireAgent, 
     validate(createPropertySchema),
     upload.array("images", 10),
+    uploadError,
     createProperty
 );
 router.get("/", getAllProperties);
@@ -22,6 +24,7 @@ router.put(
     requireAgent, 
     validate(updatePropertySchema),
     upload.array("images", 10), 
+    uploadError,
     updateProperty
 );
 router.delete("/:id", protect, requireAgent, deleteProperty);

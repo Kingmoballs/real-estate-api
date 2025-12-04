@@ -8,6 +8,16 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+//Multer filters
+const fileFilter = (req, res, cb) => {
+    const allowedTypes = ["image/jpg", "image/jpeg", "image/png"];
+
+    if (!allowedTypes.includes(req.files.mimetype)) {
+        return cb(new Error("Invalid file type. Only Jpg, Jpeg and Png are allowed."));
+    }
+    cb(null, true);
+}
+
 // Storage configuration
 const storage = new CloudinaryStorage({
     cloudinary,
@@ -18,6 +28,13 @@ const storage = new CloudinaryStorage({
     },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 2 * 1024 * 1024, //2MB limit
+        files: 10 //max 5 files per upload
+    }
+});
 
 module.exports = { upload, cloudinary };

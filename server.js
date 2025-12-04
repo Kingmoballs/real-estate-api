@@ -1,9 +1,23 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const corsMiddleware = require("./middleware/corsMiddleware")
 const helmet = require("helmet");
-require("dotenv").config();
+const sanitizeBody = require("./middleware/sanitizeHtmlMiddleware");
+const hpp = require("hpp");
+const cookieParser = require("cookie-parser");
+const httpLogger = require("./middleware/httpLogger");
+const { apiLimiter, authLimiter } = require("./middleware/rateLimit");
+const errorHandler = require("./middleware/errorMiddleware");
 
+
+//Route files
+const authRoutes = require("./routes/authRoutes");
+const propertyRoutes = require("./routes/propertyRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const app = express();
 
@@ -23,41 +37,31 @@ if (process.env.NODE_ENV === "production") {
 }
 
 //Sanitation and cleaning
-const mongoSanitize = require("express-mongo-sanitize");
-const xss = require("xss-clean");
-const hpp = require("hpp");
-
-app.use(mongoSanitize());
-app.use(xss());
+app.use(sanitizeBody)
 app.use(hpp());
 
 //Limit incoming body size
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-app.use(cors());
+//Cookie parser
+app.use(cookieParser());
 
-const httpLogger = require("./middleware/httpLogger");
+//CORS Middleware
+app.use(corsMiddleware);
+
+//HTTP request logger
 app.use(httpLogger);
 
-const { apiLimiter, authLimiter } = require("./middleware/rateLimit");
-
 // Apply rate limit before routes
-app.use("/api", apiLimiter)
-app.use("/api/auth", authLimiter)
+app.use("/api/auth", authLimiter);
+app.use("/api", apiLimiter);
+
 
 //Root routes
 app.get("/", (req, res) => {
     res.send("Real estate api is running...")
 })
-
-const authRoutes = require("./routes/authRoutes");
-const propertyRoutes = require("./routes/propertyRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
-const messageRoutes = require("./routes/messageRoutes");
-const dashboardRoutes = require("./routes/dashboardRoutes");
-
-
 
 //Routes
 app.use("/api/auth", authRoutes);
@@ -66,8 +70,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-
-const errorHandler = require("./middleware/errorMiddleware");
+//Error handling middleware
 app.use(errorHandler);
 
 //Start Server
