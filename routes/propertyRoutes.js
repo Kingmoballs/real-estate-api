@@ -11,9 +11,9 @@ router.post(
     "/", 
     protect, 
     requireAgent, 
-    validate(createPropertySchema),
     upload.array("images", 10),
     uploadError,
+    validate(createPropertySchema),
     createProperty
 );
 router.get("/", getAllProperties);
@@ -22,9 +22,9 @@ router.put(
     "/:id", 
     protect, 
     requireAgent, 
-    validate(updatePropertySchema),
     upload.array("images", 10), 
     uploadError,
+    validate(updatePropertySchema),
     updateProperty
 );
 router.delete("/:id", protect, requireAgent, deleteProperty);
