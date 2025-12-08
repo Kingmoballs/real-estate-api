@@ -9,10 +9,10 @@ cloudinary.config({
 });
 
 //Multer filters
-const fileFilter = (req, res, cb) => {
-    const allowedTypes = ["image/jpg", "image/jpeg", "image/png"];
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png"];
 
-    if (!allowedTypes.includes(req.files.mimetype)) {
+    if (!allowedTypes.includes(file.mimetype)) {
         return cb(new Error("Invalid file type. Only Jpg, Jpeg and Png are allowed."));
     }
     cb(null, true);
@@ -23,7 +23,7 @@ const storage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: "real-estate-properties", // folder in Cloudinary
-        allowed_formats: ["jpg", "jpeg", "png"],
+        allowed_formats: ["jpeg", "png"],
         transformation: [{ width: 1200, height: 800, crop: "limit" }],
     },
 });
