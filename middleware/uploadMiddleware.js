@@ -10,7 +10,7 @@ cloudinary.config({
 
 //Multer filters
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png"];
+    const allowedTypes = ["image/jpeg", "image/png"]; 
 
     if (!allowedTypes.includes(file.mimetype)) {
         return cb(new Error("Invalid file type. Only Jpg, Jpeg and Png are allowed."));
