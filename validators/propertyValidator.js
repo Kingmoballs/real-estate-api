@@ -32,7 +32,6 @@ const updatePropertySchema = Joi.object({
     propertyType: Joi.string().valid("sale", "serviced").required(),
     bedrooms: Joi.number().integer().min(0),
     bathrooms: Joi.number().integer().min(0),
-    images: Joi.array().items(Joi.string().uri()).min(1).required(),
     dailyRate: Joi.when("propertyType", {
         is: "serviced",
         then: Joi.number().positive().required(),
