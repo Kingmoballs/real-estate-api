@@ -2,30 +2,37 @@ const Message = require("../models/Message");
 const Property = require("../models/Property");
 
 // Send a message
-exports.sendMessage = async(req, res) => {
-    const { propertyId, content } = req.body;
+exports.sendMessage = async (req, res) => {
+    try {
+        const { propertyId, content } = req.body;
 
-    try{
+        if (!content) {
+            return res.status(400).json({ message: "Message content is required" });
+        }
+
         const property = await Property.findById(propertyId);
         if (!property) {
-            return res.status(404).json({ message: "Property not found" })
+            return res.status(404).json({ message: "Property not found" });
         }
 
         const message = new Message({
-            property: propertyId,
+            property: property._id,
             agent: property.postedBy,
+            sender: req.user.id,    
             senderName: req.user.name,
             senderEmail: req.user.email,
             content,
-        })
+        });
 
         const savedMessage = await message.save();
         res.status(201).json(savedMessage);
-    }
-    catch (err) {
-        res.status(501).json({ message: err.message })
+
+    } catch (err) {
+        console.error("Send message error:", err);
+        res.status(500).json({ message: "Failed to send message" });
     }
 };
+
 
 // Get all messages for an Agent
 
