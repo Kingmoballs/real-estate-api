@@ -85,42 +85,41 @@ exports.getPropertyById = async (req, res) => {
 //@desc Update a property
 //@route PUT /api/properties/:id
 exports.updateProperty = async (req, res) => {
-    try{
+    try {
         const property = await Property.findById(req.params.id);
 
         if (!property) {
             return res.status(404).json({ message: "Property not found" });
         }
 
-        // Check if the logged-in user is the owner
         if (property.postedBy.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Not authorized to update this property" });
+            return res.status(403).json({ message: "Not authorized" });
         }
 
-        // Delete old images if provided
-        const { imageToDelete } = req.body;
-        if (imageToDelete && Array.isArray(imageToDelete)) {
-            for (let publicId of imageToDelete) {
-                await cloudinary.uploader.destroy(publicId);
-                // Remove from property.images array
-                property.images = property.images.filter(img => img.public_id !== publicId);
-            }
-        }
-
-        // Add new images if uploaded
+        // 🔥 If new images are uploaded → replace old ones
         if (req.files && req.files.length > 0) {
-            req.files.forEach(file => {
-                property.images.push({
-                    url: file.path,
-                    public_id: file.filename
-                });
-            });
+            // Delete all old images from Cloudinary
+            for (const img of property.images) {
+                await cloudinary.uploader.destroy(img.public_id);
+            }
+
+            // Replace with new images
+            property.images = req.files.map(file => ({
+                url: file.path,
+                public_id: file.filename
+            }));
         }
 
         // Update other fields
         const editableFields = [
-            "title", "description", "price", "location",
-            "bedrooms", "bathrooms", "propertyType", "dailyRate"
+            "title",
+            "description",
+            "price",
+            "location",
+            "bedrooms",
+            "bathrooms",
+            "propertyType",
+            "dailyRate",
         ];
 
         editableFields.forEach(field => {
@@ -129,15 +128,14 @@ exports.updateProperty = async (req, res) => {
             }
         });
 
-
         const updated = await property.save();
-        res.status(200).json(updated)
-    }
-    catch (err) {
-        console.error("update Property error", err)
+        res.status(200).json(updated);
+    } catch (err) {
+        console.error("Update property error:", err);
         res.status(500).json({ message: err.message });
     }
 };
+
 
 //@desc Delete a property
 //@route DELETE /api/properties/:id
