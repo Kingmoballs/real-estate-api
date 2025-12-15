@@ -130,7 +130,7 @@ exports.updateProperty = async (req, res) => {
         });
 
 
-        const updated = await  Property.save()
+        const updated = await property.save();
         res.status(200).json(updated)
     }
     catch (err) {
