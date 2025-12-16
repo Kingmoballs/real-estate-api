@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 const sendMessageSchema = Joi.object({
-    property: Joi.string().required(),
+    propertyId: Joi.string().required(),
     content: Joi.string().min(3).required()
 })
 
