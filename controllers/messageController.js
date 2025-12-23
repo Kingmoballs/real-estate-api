@@ -6,10 +6,6 @@ exports.sendMessage = async (req, res) => {
     try {
         const { propertyId, content } = req.body;
 
-        if (!content) {
-            return res.status(400).json({ message: "Message content is required" });
-        }
-
         const property = await Property.findById(propertyId);
         if (!property) {
             return res.status(404).json({ message: "Property not found" });
