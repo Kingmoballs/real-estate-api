@@ -11,6 +11,9 @@ const httpLogger = require("./middleware/httpLogger");
 const { apiLimiter, authLimiter } = require("./middleware/rateLimit");
 const errorHandler = require("./middleware/errorMiddleware");
 
+require("./cron/bookingStatusCron");
+
+
 
 const http = require("http");
 const { Server } = require("socket.io");
