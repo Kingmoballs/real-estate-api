@@ -4,7 +4,7 @@ const { createProperty, getAllProperties, getPropertyById, updateProperty, delet
 const { protect, requireAgent } = require("../middleware/authMiddleware");
 const { createPropertySchema, updatePropertySchema } = require("../validators/propertyValidator");
 const validate = require("../middleware/validateMiddleware");
-const { upload } = require("../middleware/uploadMiddleware");
+const upload = require("../middleware/uploadPropertyMedia");
 const uploadError = require("../middleware/uploadErrorMiddleware");
 
 router.post(

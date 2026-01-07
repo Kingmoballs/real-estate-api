@@ -12,12 +12,19 @@ const { apiLimiter, authLimiter } = require("./middleware/rateLimit");
 const errorHandler = require("./middleware/errorMiddleware");
 
 
+const http = require("http");
+const { Server } = require("socket.io");
+const initSocket = require("./socket/socket"); 
+
+
 //Route files
 const authRoutes = require("./routes/authRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
-const messageRoutes = require("./routes/messageRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -67,17 +74,39 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/bookings", bookingRoutes);
-app.use("/api/messages", messageRoutes);
+app.use("/api/chats", chatRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/users", userRoutes);
 
 //Error handling middleware
 app.use(errorHandler);
 
+// SOCKET IO SETUP
+
+// Create HTTP server
+ const server = http.createServer(app);
+
+ // Attach Socket.IO
+const io = initSocket(server);
+
+// Make io accessible everywhere (controllers, services)
+app.set("io", io);
+
+// Basic connection test (temporary)
+io.on("connection", (socket) => {
+    console.log("Socket connected:", socket.id);
+
+    socket.on("disconnect", () => {
+        console.log("Socket disconnected:", socket.id);
+    });
+});
+
 //Start Server
 const PORT = process.env.PORT || 5000
 mongoose.connect(process.env.MONGO_URI).then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+    server.listen(PORT, () => {
+        console.log(`Server + Socket.IO running on port ${PORT}`);
     });
 }).catch((err) => {
     console.error("MongoDB connection error: ", err.message)

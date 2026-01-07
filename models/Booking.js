@@ -6,6 +6,12 @@ const bookingSchema = new mongoose.Schema({
         ref: "Property",
         required: true,
     },
+    guest: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+
     guestName: {
         type: String,
         required: true,
@@ -19,11 +25,11 @@ const bookingSchema = new mongoose.Schema({
         required: true,
     },
     checkInDate: {
-        type: Date,
+        type: String,
         required: true,
     },
     checkOutDate: {
-        type: Date,
+        type: String,
         required: true,
     },
     totalPrice: {
@@ -33,6 +39,28 @@ const bookingSchema = new mongoose.Schema({
     message: {
         type: String,
     },
+    bookingStatus: {
+        type: String,
+        enum: ["pending", "approved", "rejected", "cancelled", "active", "completed"],
+        default: "pending",
+    },
+    receiptRejectionReason: {
+        type: String
+    },
+    paymentStatus: {
+        type: String,
+        enum: ["unpaid", "receiptUploaded", "verified", "rejected"],
+        default: "unpaid"
+    },
+    paymentReceipt: {
+        type: String
+    },
+    receiptUploadedAt: {
+        type: Date
+    },
+    receiptVerifiedAt: {
+        type: Date
+    }
 
 }, {timestamps: true});
 
