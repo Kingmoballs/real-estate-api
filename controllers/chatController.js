@@ -2,13 +2,13 @@ const Conversation = require("../models/Conversation");
 const ChatMessage = require("../models/ChatMessage");
 const Property = require("../models/Property");
 const Notification = require("../models/Notification");
-
+const { getIO } = require("../socket/socket");
 
 // Send a message
 exports.sendMessage = async (req, res) => {
     try {
         const { propertyId, content } = req.body;
-        const io = req.app.get("io");
+        const io = getIO();
 
         if (!content) {
             return res.status(400).json({ message: "Message content is required" });
@@ -46,7 +46,7 @@ exports.sendMessage = async (req, res) => {
         await conversation.save();
 
         // Emit message to participants
-        conversation.participants.forEach(async (userId) => {
+        for (const userId of conversation.participants) {
             if (userId.toString() !== req.user.id.toString()) {
                 io.to(userId.toString()).emit("new_message", {
                     conversationId: conversation._id,
@@ -64,7 +64,7 @@ exports.sendMessage = async (req, res) => {
                 })
 
             }
-        });
+        };
 
         // Create notification for recipient
         const recipient =
@@ -152,7 +152,7 @@ exports.markConversationAsRead = async (req, res) => {
     try {
         const { conversationId } = req.params;
         const userId = req.user.id;
-        const io = req.app.get("io");
+        const io = getIO();
 
         // Verify conversation
         const conversation = await Conversation.findById(conversationId);

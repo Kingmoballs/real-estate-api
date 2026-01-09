@@ -40,6 +40,11 @@ const notificationSchema = new mongoose.Schema(
             ref: "ChatMessage",
         },
 
+        booking: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Booking",
+        },
+
         isRead: {
             type: Boolean,
             default: false,

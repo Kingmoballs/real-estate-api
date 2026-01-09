@@ -1,7 +1,9 @@
 const Booking = require("../models/Booking");
+const Notification = require("../models/Notification");
 const Property = require("../models/Property");
 const { shouldActivateBooking } = require("../utils/bookingUtils")
 const user = require("../models/user");
+
 
 exports.createBooking = async(req, res) => {
     try{
@@ -52,8 +54,8 @@ exports.createBooking = async(req, res) => {
             guestName: req.user.name,
             guestEmail: req.user.email,
             guestPhone: req.user.phone,
-            checkInDate,
-            checkOutDate,
+            checkInDate: start,
+            checkOutDate: end,
             totalPrice,
             message,
             bookingStatus: "pending",

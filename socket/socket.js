@@ -2,29 +2,27 @@ const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
 const User = require("../models/user");
-
 const { onlineUsers } = require("../utils/onlineUsers");
 
+let io; //shared instance
+
 const initSocket = (httpServer) => {
-    const io = new Server(httpServer, {
+    io = new Server(httpServer, {
         cors: {
             origin: process.env.CLIENT_URL || "*",
             credentials: true
         }
     });
 
-    // Authentication middleware
     io.use(async (socket, next) => {
         try {
             let token;
 
-            // Try cookie (web apps)
             if (socket.handshake.headers.cookie) {
                 const cookies = cookie.parse(socket.handshake.headers.cookie);
                 token = cookies.token;
             }
 
-            // Fallback to bearer token (mobile/Postman)
             if (!token && socket.handshake.auth?.token) {
                 token = socket.handshake.auth.token;
             }
@@ -40,29 +38,20 @@ const initSocket = (httpServer) => {
                 return next(new Error("User not found"));
             }
 
-            socket.user = user; // attach user
+            socket.user = user;
             next();
         } catch (err) {
-            console.log("Socket log error", err.message)
             next(new Error("Invalid or expired token"));
         }
     });
 
     io.on("connection", (socket) => {
-        console.log(`Socket connected: ${socket.user._id}`);
-
         const userId = socket.user._id.toString();
-        // Add to online users
+
         onlineUsers.set(userId, socket.id);
-        // Join user-specific room
-        socket.join(userId.toString());
+        socket.join(userId);
 
-        // Broadcast online status
-        socket.broadcast.emit("user_online", {
-            userId
-        });
-
-        console.log(`User online: ${userId}`);
+        socket.broadcast.emit("user_online", { userId });
 
         socket.on("disconnect", async () => {
             onlineUsers.delete(userId);
@@ -75,12 +64,21 @@ const initSocket = (httpServer) => {
                 userId,
                 lastSeen: new Date()
             });
-
-            console.log(`Socket disconnected: ${userId}`);
         });
     });
 
     return io;
 };
 
-module.exports = initSocket;
+// EXPORT ACCESSOR
+const getIO = () => {
+    if (!io) {
+        throw new Error("Socket.io not initialized");
+    }
+    return io;
+};
+
+module.exports = {
+    initSocket,
+    getIO
+};

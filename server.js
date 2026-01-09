@@ -17,7 +17,7 @@ require("./cron/bookingStatusCron");
 
 const http = require("http");
 const { Server } = require("socket.io");
-const initSocket = require("./socket/socket"); 
+const { initSocket } = require("./socket/socket"); 
 
 
 //Route files
@@ -96,14 +96,6 @@ const io = initSocket(server);
 // Make io accessible everywhere (controllers, services)
 app.set("io", io);
 
-// Basic connection test (temporary)
-io.on("connection", (socket) => {
-    console.log("Socket connected:", socket.id);
-
-    socket.on("disconnect", () => {
-        console.log("Socket disconnected:", socket.id);
-    });
-});
 
 //Start Server
 const PORT = process.env.PORT || 5000
