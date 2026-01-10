@@ -3,8 +3,11 @@ const Notification = require("../models/Notification");
 const Property = require("../models/Property");
 const { shouldActivateBooking } = require("../utils/bookingUtils")
 const user = require("../models/user");
+const { getIO } = require("../socket/socket");
 
-
+////////////////////////
+// Create a new booking
+////////////////////////
 exports.createBooking = async(req, res) => {
     try{
         const { property, checkInDate, checkOutDate, message } = req.body;
@@ -63,6 +66,26 @@ exports.createBooking = async(req, res) => {
         });
 
         const saved = await booking.save();
+
+        // Agent Notification
+        const agentId = apartment.postedBy;
+        const io = getIO();
+        
+        const notification = await Notification.create({
+            user: agentId,
+            type: "booking",
+            title: "New Booking Request",
+            body: `${req.user.name} requested to book your apartment.`,
+        });
+
+        // Real-time push to agent
+        io.to(agentId.toString().emit("notification", {
+            id: notification._id,
+            type: "booking",
+            title: notification.title,
+            body: notification.body
+        }))
+
         res.status(201).json(saved); 
     }
     catch (err) {
@@ -71,6 +94,9 @@ exports.createBooking = async(req, res) => {
     
 }
 
+/////////////////////
+// Approve a booking
+////////////////////
 exports.approveBooking = async (req, res) => {
     try{
         const { bookingId } = req.params;
@@ -92,6 +118,24 @@ exports.approveBooking = async (req, res) => {
         booking.bookingStatus = "approved";
         await booking.save()
 
+        // Guest Notification
+        const io = getIO();
+
+        const notification = await Notification.create({
+            user: booking.guest,
+            type: "booking",
+            title: "Booking Approved",
+            body: "Your booking has been approved. Please upload payment receipt to continue"
+        });
+
+        // Real-time push to guest
+        io.to(booking.guest.toString().emit("notification", {
+            id: notification._id,
+            title: notification.title,
+            body: notification.body
+
+        }))
+
         res.status(200).json({
             message: "Booking approved successfully",
             booking
@@ -107,6 +151,9 @@ exports.approveBooking = async (req, res) => {
     }
 }
 
+////////////////////
+// Reject a booking
+////////////////////
 exports.rejectBooking = async (req, res) => {
     try{
         const { bookingId } = req.params;
@@ -117,7 +164,7 @@ exports.rejectBooking = async (req, res) => {
             return res.status(404).json({ message: "Booking not found" });
         }
 
-        if (booking.property.postedBy.toString() !== req.user._id.toSting()) {
+        if (booking.property.postedBy.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: "You are not authorized to reject this booking" });
         }
 
@@ -129,6 +176,24 @@ exports.rejectBooking = async (req, res) => {
         booking.rejectionReason = reason || "No reason provided";
 
         await booking.save();
+        
+        // Guest Notification
+        const io = getIO();
+
+        const notification = await Notification.create({
+            user: booking.guest,
+            type: "booking",
+            title: "Booking Rejected",
+            body: `Your booking request was rejected. Reason: ${booking.rejectionReason}`,
+        });
+
+        // Real-time push to guest
+        io.to(booking.guest.toString()).emit("notification", {
+            id: notification._id,
+            type: "booking",
+            title: notification.title,
+            body: notification.body,
+        });
 
         res.status(200).json({ 
             message: "Booking rejected successfully",
@@ -144,6 +209,9 @@ exports.rejectBooking = async (req, res) => {
     }
 }
 
+/////////////////////////
+// Upload payment receipt
+/////////////////////////
 exports.uploadPaymentReceipt = async (req, res) => {
     try {
         const { bookingId } = req.params;
@@ -168,7 +236,7 @@ exports.uploadPaymentReceipt = async (req, res) => {
             });
         }
 
-        if (booking.paymentStatus === "receipt_uploaded") {
+        if (booking.paymentStatus === "receiptUploaded") {
             return res.status(400).json({
                 message: "Receipt already uploaded"
             });
@@ -186,6 +254,26 @@ exports.uploadPaymentReceipt = async (req, res) => {
 
         await booking.save();
 
+        // Agent Notification
+        const agentId = booking.property.postedBy;
+        const io = getIO();
+
+        const notification = await Notification.create({
+            user: agentId,
+            type: "booking",
+            title: "Payment Receipt Uploaded",
+            body: `${req.user.name} uploaded a payment receipt for a booking.`,
+        });
+
+        // Real-time push to agent
+        io.to(agentId.toString()).emit("notification", {
+            id: notification._id,
+            type: "booking",
+            title: notification.title,
+            body: notification.body,
+        });
+
+
         res.status(200).json({
             message: "Payment receipt uploaded successfully",
             booking
@@ -200,6 +288,9 @@ exports.uploadPaymentReceipt = async (req, res) => {
     }
 };
 
+/////////////////////////
+// Verify payment receipt
+/////////////////////////
 exports.verifyPaymentReceipt = async (req, res) => {
     try{
         const { bookingId } = req.params;
@@ -229,6 +320,27 @@ exports.verifyPaymentReceipt = async (req, res) => {
 
         await booking.save();
 
+        // Guest Notification
+        const io = getIO();
+
+        const notification = await Notification.create({
+            user: booking.guest,
+            type: "booking",
+            title: "Payment Verified",
+            body:
+                booking.bookingStatus === "active"
+                    ? "Your payment has been verified and your booking is now active."
+                    : "Your payment has been verified. Your booking will activate on your check-in date.",
+        });
+
+        // Real-time push to guest
+        io.to(booking.guest.toString()).emit("notification", {
+            id: notification._id,
+            type: "booking",
+            title: notification.title,
+            body: notification.body,
+        });
+
         res.status(200).json({
             message: 
                 booking.bookingStatus === "active"
@@ -247,6 +359,9 @@ exports.verifyPaymentReceipt = async (req, res) => {
     }
 }
 
+//////////////////////////
+// Reject payment receipt
+/////////////////////////
 exports.rejectPaymentReceipt = async (req, res) => {
     try{
         const { bookingId } = req.params;
@@ -258,7 +373,7 @@ exports.rejectPaymentReceipt = async (req, res) => {
         }
 
         const isAgentOwner = booking.property.postedBy.toString() === req.user._id.toString();
-        if (!isAgentOwner && req.user._id !== "admin") {
+        if (!isAgentOwner && req.user.role !== "admin") {
             return res.status(403).json({ message: "You are not authorized to reject this receipt" })
         }
 
@@ -272,6 +387,24 @@ exports.rejectPaymentReceipt = async (req, res) => {
         booking.receiptRejectionReason = reason || "invalid or unclear receipt"
 
         await booking.save();
+
+        // Guest Notification
+        const io = getIO();
+        
+        const notification = await Notification.create({
+            user: booking.guest,
+            type: "booking",
+            title: "Payment Receipt Rejected",
+            body: `Your payment receipt was rejected. Reason: ${booking.receiptRejectionReason}`,
+        });
+
+        // Real-time push
+        io.to(booking.guest.toString()).emit("notification", {
+            id: notification._id,
+            type: "booking",
+            title: notification.title,
+            body: notification.body,
+        });
 
         res.status(200).json({ 
             message: "Payment receipt rejected",
