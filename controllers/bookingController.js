@@ -248,6 +248,16 @@ exports.uploadPaymentReceipt = async (req, res) => {
             });
         }
 
+        if (["expired", "completed", "rejected"].includes(booking.bookingStatus)) {
+            return res.status(400).json({
+                message: `Cannot upload receipt for a ${booking.bookingStatus} booking`
+            });
+        }
+
+        if (booking.paymentStatus === "verified") {
+            return res.status(400).json({ message: "Receipt already verified" });
+        }
+
         booking.paymentReceipt = req.file.path;
         booking.paymentStatus = "receiptUploaded";
         booking.receiptUploadedAt = new Date();
