@@ -3,6 +3,9 @@ const Booking = require("../models/Booking");
 const Notification = require("../models/Notification");
 const { getIO } = require("../socket/socket");
 const { onlineUsers } = require("../utils/onlineUsers");
+const { REUPLOAD_TIMEOUT_HOURS } = require("../config/bookingRules");
+
+const MS_PER_HOUR = 60 * 60 * 1000;
 
 cron.schedule("0 0 * * *", async () => {
     console.log("Running booking status cron job");
@@ -19,7 +22,9 @@ cron.schedule("0 0 * * *", async () => {
     const expiryDate = new Date(Date.now() - EXPIRY_HOURS * 60 * 60 * 1000);
 
     try {
+        /////////////////////////
         // Expire unpaid bookings
+        /////////////////////////
         const unpaidBookings = await Booking.find({
             bookingStatus: "approved",
             paymentStatus: "unpaid",
@@ -43,7 +48,9 @@ cron.schedule("0 0 * * *", async () => {
             }
         }
 
+        /////////////////////
         // Activate bookings
+        /////////////////////
         const bookingsToActivate = await Booking.find({
             bookingStatus: "approved",
             paymentStatus: "verified",
@@ -68,7 +75,9 @@ cron.schedule("0 0 * * *", async () => {
             }
         }
 
+        ////////////////////
         //Complete bookings
+        ////////////////////
         const bookingsToComplete = await Booking.find({
             bookingStatus: "active",
             checkOutDate: { $lte: startOfToday }
@@ -89,6 +98,41 @@ cron.schedule("0 0 * * *", async () => {
             if (socketId) {
                 io.to(socketId).emit("notification:new", notification);
             }
+        }
+
+        // Upload receipt timeout
+        const now = new Date();
+
+        const expiredBookings = await Booking.find({
+            paymentStatus: "rejected",
+            bookingStatus: { $in: ["approved", "pending"] },
+            receiptRejectedAt: { $exists: true }
+        }).populate("guest");
+
+        for (const booking of expiredBookings) {
+            const expiryTime =
+                new Date(booking.receiptRejectedAt).getTime() +
+                REUPLOAD_TIMEOUT_HOURS * MS_PER_HOUR;
+
+            if (now.getTime() > expiryTime) {
+            booking.bookingStatus = "cancelled";
+            booking.bookingCancelledAt = new Date();
+            booking.bookingCancellationReason = "Payment receipt re-upload time expired";
+
+            await booking.save()
+            
+            const notification = await Notification.create({
+                user: booking.guest,
+                type: "booking",
+                title: "Booking Cancelled",
+                body: booking.bookingCancellationReason,
+            });
+
+            const socketId = onlineUsers.get(booking.guest.toString());
+            if (socketId) {
+                io.to(socketId).emit("notification:new", notification);
+            }
+        }
         }
 
         console.log("To activate:", bookingsToActivate.length);

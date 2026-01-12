@@ -47,6 +47,9 @@ const bookingSchema = new mongoose.Schema({
     receiptRejectionReason: {
         type: String
     },
+    receiptRejectedAt: {
+        type: Date
+    },
     paymentStatus: {
         type: String,
         enum: ["unpaid", "receiptUploaded", "verified", "rejected"],
@@ -60,6 +63,12 @@ const bookingSchema = new mongoose.Schema({
     },
     receiptVerifiedAt: {
         type: Date
+    },
+    bookingCancelledAt: {
+        type: Date
+    },
+    bookingCancellationReason: {
+        type: String
     }
 
 }, {timestamps: true});

@@ -4,6 +4,7 @@ const Property = require("../models/Property");
 const { shouldActivateBooking } = require("../utils/bookingUtils")
 const user = require("../models/user");
 const { getIO } = require("../socket/socket");
+const { REUPLOAD_TIMEOUT_HOURS } = require("../config/bookingRules");
 
 ////////////////////////
 // Create a new booking
@@ -248,7 +249,7 @@ exports.uploadPaymentReceipt = async (req, res) => {
             });
         }
 
-        if (["expired", "completed", "rejected"].includes(booking.bookingStatus)) {
+        if (["expired", "completed"].includes(booking.bookingStatus)) {
             return res.status(400).json({
                 message: `Cannot upload receipt for a ${booking.bookingStatus} booking`
             });
@@ -256,6 +257,18 @@ exports.uploadPaymentReceipt = async (req, res) => {
 
         if (booking.paymentStatus === "verified") {
             return res.status(400).json({ message: "Receipt already verified" });
+        }
+
+        if (booking.paymentStatus === "rejected") {
+            const expiry =
+                new Date(booking.receiptRejectedAt).getTime() +
+                REUPLOAD_TIMEOUT_HOURS * 60 * 60 * 1000;
+
+            if (Date.now() > expiry) {
+                return res.status(403).json({
+                message: "Re-upload window expired. Booking cancelled."
+                });
+            }
         }
 
         booking.paymentReceipt = req.file.path;
@@ -394,7 +407,8 @@ exports.rejectPaymentReceipt = async (req, res) => {
         }
 
         booking.paymentStatus = "rejected";
-        booking.receiptRejectionReason = reason || "invalid or unclear receipt"
+        booking.receiptRejectionReason = reason || "invalid or unclear receipt";
+        booking.receiptRejectedAt = new Date();
 
         await booking.save();
 
