@@ -7,7 +7,7 @@ const { REUPLOAD_TIMEOUT_HOURS } = require("../config/bookingRules");
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("0 * * * *", async () => {
     console.log("Running booking status cron job");
 
     const io = getIO(); 
@@ -26,7 +26,7 @@ cron.schedule("0 0 * * *", async () => {
         // Expire unpaid bookings
         /////////////////////////
         const unpaidBookings = await Booking.find({
-            bookingStatus: "approved",
+            bookingStatus: ["pending", "approved"],
             paymentStatus: "unpaid",
             createdAt: { $lte: expiryDate }
         });
@@ -100,7 +100,9 @@ cron.schedule("0 0 * * *", async () => {
             }
         }
 
+        //////////////////////////
         // Upload receipt timeout
+        /////////////////////////
         const now = new Date();
 
         const expiredBookings = await Booking.find({

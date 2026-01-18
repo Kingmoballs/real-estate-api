@@ -1,4 +1,5 @@
 const Booking = require("../models/Booking");
+const BookingService = require("../services/bookingService");
 const Notification = require("../models/Notification");
 const Property = require("../models/Property");
 const { shouldActivateBooking } = require("../utils/bookingUtils")
@@ -9,146 +10,40 @@ const { REUPLOAD_TIMEOUT_HOURS } = require("../config/bookingRules");
 ////////////////////////
 // Create a new booking
 ////////////////////////
-exports.createBooking = async(req, res) => {
-    try{
-        const { property, checkInDate, checkOutDate, message } = req.body;
+exports.createBooking = async(req, res, next) => {
+    try {
+        const booking =  await BookingService.createBooking({
+            user: req.user,
+            payload: req.body
+        }); 
 
-        const apartment = await Property.findById(property);
-        if (!apartment || apartment.propertyType !== "serviced") {
-            return res.status(400). json({ error: "invalid of non-serviced apartment selected" })
-        };
-
-        // Parse dates as UTC (prevents timezone shifting)
-        const start = new Date(`${checkInDate}T00:00:00.000Z`);
-        const end = new Date(`${checkOutDate}T00:00:00.000Z`);
-        
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD" })
-        }
-
-        if (end <= start) {
-            return res.status(400).json({ message: "check-out date must be after check-in date" })
-        }
-
-        // Calculate stay duration
-        const MS_PER_DAY = 1000 * 60 * 60 * 24;
-        const days = Math.ceil((end - start) / MS_PER_DAY);
-
-        if (days < 1) {
-            return res.status(400).json({ message: "booking must be at least one day" })
-        }
-
-        // Check for date conflicts
-        const conflictingBooking = await Booking.findOne({
-            property,
-            bookingStatus: { $in: ["pending", "approved", "active"] },
-            checkInDate: { $lt: end },
-            checkOutDate: { $gt: start }
+        res.status(201).json({
+            message: "Booking created successfully",
+            booking
         });
-
-        if (conflictingBooking) {
-            return res.status(409).json({ message: "Apartment is already been booking for selected dates" })
-        }
-
-        const totalPrice = days * apartment.dailyRate;
-
-        const booking = new Booking({
-            property,
-            guest: req.user._id,
-            guestName: req.user.name,
-            guestEmail: req.user.email,
-            guestPhone: req.user.phone,
-            checkInDate: start,
-            checkOutDate: end,
-            totalPrice,
-            message,
-            bookingStatus: "pending",
-            paymentStatus: "unpaid"
-        });
-
-        const saved = await booking.save();
-
-        // Agent Notification
-        const agentId = apartment.postedBy;
-        const io = getIO();
-        
-        const notification = await Notification.create({
-            user: agentId,
-            type: "booking",
-            title: "New Booking Request",
-            body: `${req.user.name} requested to book your apartment.`,
-        });
-
-        // Real-time push to agent
-        io.to(agentId.toString().emit("notification", {
-            id: notification._id,
-            type: "booking",
-            title: notification.title,
-            body: notification.body
-        }))
-
-        res.status(201).json(saved); 
     }
     catch (err) {
-        res.status(500).json({ err: err.message });
+        next(err);
     }
-    
 }
 
 /////////////////////
 // Approve a booking
 ////////////////////
-exports.approveBooking = async (req, res) => {
-    try{
-        const { bookingId } = req.params;
-
-        const booking = await Booking.findById(bookingId).populate("property");
-        if (!booking) {
-            return res.status(404).json({ message: "Booking not found" })
-        }
-
-        //Only agents who own the property can approve
-        if (booking.property.postedBy.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: "You are not authorized to approve this booking" });
-        }
-
-        if (booking.bookingStatus !== "pending") {
-            return res.status(400).json({ message: `Booking cannot be approved. Current status: ${booking.bookingStatus}`  });
-        }
-
-        booking.bookingStatus = "approved";
-        await booking.save()
-
-        // Guest Notification
-        const io = getIO();
-
-        const notification = await Notification.create({
-            user: booking.guest,
-            type: "booking",
-            title: "Booking Approved",
-            body: "Your booking has been approved. Please upload payment receipt to continue"
+exports.approveBooking = async (req, res, next) => {
+    try {
+        const booking = await BookingService.approveBooking({
+            bookingId: req.params.bookingId,
+            agent: req.user
         });
-
-        // Real-time push to guest
-        io.to(booking.guest.toString().emit("notification", {
-            id: notification._id,
-            title: notification.title,
-            body: notification.body
-
-        }))
-
+        
         res.status(200).json({
             message: "Booking approved successfully",
             booking
         })
-
     }
     catch (err) {
-        console.error(err);
-        res.status(200).json({
-            message: "Failed to approve building",
-            error: err.message
-        })
+        next(err)
     }
 }
 

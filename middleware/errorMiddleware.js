@@ -1,18 +1,29 @@
-const logger = require("./logger");
+const ApiError = require("../utils/ApiError");
 
-const errorHandler = (err, req, res, next) => {
-    const statusCode = err.status || 500;
-    const message = err.message || "Internal Server Error";
+module.exports = (err, req, res, next) => {
+    let error = err;
 
-    // Log full error with stack trace
-    logger.error(
-        `${message} - ${req.originalUrl} - ${req.method} - ${req.ip}\n${err.stack}`
-    );
+    // Convert unknown errors to ApiError
+    if (!(error instanceof ApiError)) {
+        error = new ApiError(500, "Internal server error");
+    }
+
+    // Invalid Mongo ObjectId
+    if (err.name === "CastError") {
+        error = new ApiError(400, "Invalid ID format");
+    }
+
+    // Duplicate key error
+    if (err.code === 11000) {
+        error = new ApiError(409, "Duplicate resource");
+    }
+
+
+    const statusCode = error.statusCode || 500;
+    const message = error.message || "Something went wrong";
 
     res.status(statusCode).json({
-        message,
-        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+        success: false,
+        message
     });
 };
-
-module.exports = errorHandler;
