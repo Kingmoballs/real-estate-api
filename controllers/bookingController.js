@@ -1,10 +1,4 @@
-const Booking = require("../models/Booking");
 const BookingService = require("../services/bookingService");
-const Notification = require("../models/Notification");
-const Property = require("../models/Property");
-const { shouldActivateBooking } = require("../utils/bookingUtils")
-const user = require("../models/user");
-const { getIO } = require("../socket/socket");
 
 ////////////////////////
 // Create a new booking
@@ -129,6 +123,3 @@ exports.rejectPaymentReceipt = async (req, res, next) => {
         next(err);
     }
 };
-
-
-

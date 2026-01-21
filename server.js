@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const corsMiddleware = require("./middleware/corsMiddleware")
 const helmet = require("helmet");
 const sanitizeBody = require("./middleware/sanitizeHtmlMiddleware");
