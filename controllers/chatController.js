@@ -4,7 +4,7 @@ const chatService = require("../services/chatService")
 const { getIO } = require("../socket/socket");
 
 // Send a message
-exports.sendMessage = async (req, res) => {
+exports.sendMessage = async (req, res, next) => {
     try {
         const message = await chatService.sendMessage({
             user: req.user,
@@ -55,7 +55,7 @@ exports.getInbox = async (req, res, next) => {
 };
 
 // Mark message as read
-exports.markConversationAsRead = async (req, res) => {
+exports.markConversationAsRead = async (req, res,next) => {
     try {
         const result = await chatService.markConversationAsRead({
             conversationId: req.params.conversationId,

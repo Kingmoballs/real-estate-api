@@ -7,3 +7,20 @@ exports.findById = async (id, session) => {
     return query;
 };
 
+// Create new property
+exports.create = async (propertyData, session = null) => {
+    const property = new Property(propertyData);
+    return session ? property.save({ session }) : property.save();
+};
+
+// Find all properties with optional filters
+exports.findAll = async (filters = {}) => {
+    return Property.find(filters).sort({ createdAt: -1 });
+};
+
+// Delete property by ID
+exports.deleteById = async (id, session = null) => {
+    const query = Property.findByIdAndDelete(id);
+    if (session) query.session(session);
+    return query;
+};

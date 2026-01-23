@@ -1,166 +1,69 @@
-const Property = require("../models/Property");
-const { cloudinary } = require("../middleware/uploadMiddleware")
+const propertyService = require("../services/propertyService");
 
-//@desc Create new property
-//@route POST /api/properties
-exports.createProperty = async (req, res) => {
-    try{
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ message: "At least a image is required" });
-        }
-
-        const images = req.files.map(file => ({
-            url: file.path,
-            public_id: file.filename
-        }));
-
-        const propertyData = {
-            ...req.body,
-            images,
-            postedBy: req.user.id,
-            agentName: req.user.name,
-            agentEmail: req.user.email,
-            agentPhone: req.user.phone
-        };
-        const newProperty = new Property(propertyData);
-        const saved = await newProperty.save();
-        res.status(201).json(saved);
-    }
-    catch (err) {
-        res.status(400).json({ message: err.message })
-    }
-};
-
-//@desc Get all properties
-//@route GET /api/properties
-exports.getAllProperties = async (req, res) => {
-    try{
-        const { location, type, minPrice, maxPrice, bedrooms, bathrooms } = req.query
-
-        let filters = {};
-
-        if (location) {
-            filters.location = { $regex: location, $options: "i" }
-        }
-
-        if (type) {
-            filters.properyType = type
-        }
-
-        if (minPrice || maxPrice) {
-            filters.price = {}
-            if (minPrice) filters.price.$gte = Number(minPrice);
-            if (maxPrice) filters.price.$lte = Number(maxPrice)
-        }
-        
-        if (bedrooms) {
-            filters.bedrooms = { $gte: Number(bedrooms) }
-        }
-
-        if (bathrooms) {
-            filters.bathrooms = { $lte: Number(bathrooms) }
-        }
-
-        const properties = await Property.find(filters).sort({ createdAt: -1 });
-        res.status(200).json(properties)
-    }
-    catch (err) {
-        res.status(400).json({ message: err.message })
-    }
-};
-
-//@desc Get a single property by id
-//@route GET /api/properties/:id
-exports.getPropertyById = async (req, res) => {
-    try{
-        const property = await Property.findById(req.params.id).populate("postedBy", "name phone");
-        if (!property)  return res.status(404).json({ message: "Not Found" });
-        res.status(200).json(property)
-    }
-    catch (err) {
-        res.status(500).json({ message: err.message })
-    }
-};
-
-//@desc Update a property
-//@route PUT /api/properties/:id
-exports.updateProperty = async (req, res) => {
+// Create a new property
+exports.createProperty = async (req, res, next) => {
     try {
-        const property = await Property.findById(req.params.id);
-
-        if (!property) {
-            return res.status(404).json({ message: "Property not found" });
-        }
-
-        if (property.postedBy.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Not authorized" });
-        }
-
-        // 🔥 If new images are uploaded → replace old ones
-        if (req.files && req.files.length > 0) {
-            // Delete all old images from Cloudinary
-            for (const img of property.images) {
-                await cloudinary.uploader.destroy(img.public_id);
-            }
-
-            // Replace with new images
-            property.images = req.files.map(file => ({
-                url: file.path,
-                public_id: file.filename
-            }));
-        }
-
-        // Update other fields
-        const editableFields = [
-            "title",
-            "description",
-            "price",
-            "location",
-            "bedrooms",
-            "bathrooms",
-            "propertyType",
-            "dailyRate",
-        ];
-
-        editableFields.forEach(field => {
-            if (req.body[field] !== undefined) {
-                property[field] = req.body[field];
-            }
+        const property = await propertyService.createProperty({
+            user: req.user,
+            body: req.body,
+            files: req.files,
         });
 
-        const updated = await property.save();
-        res.status(200).json(updated);
+        res.status(201).json(property);
     } catch (err) {
-        console.error("Update property error:", err);
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };
 
+// Get all properties with optional filters
+exports.getAllProperties = async (req, res, next) => {
+    try {
+        const properties = await propertyService.getAllProperties(req.query);
+        res.status(200).json(properties);
+    } catch (err) {
+        next(err);
+    }
+};
 
-//@desc Delete a property
-//@route DELETE /api/properties/:id
-exports.deleteProperty = async (req, res) => {
-    try{
-        const property = await Property.findById(req.params.id);
+// Get property by ID
+exports.getPropertyById = async (req, res, next) => {
+    try {
+        const property = await propertyService.getPropertyById(req.params.id);
         if (!property) {
             return res.status(404).json({ message: "Property not found" });
         }
-
-        // Check if the logged-in user is the owner
-        if (property.postedBy.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Not authorized to delete this property" });
-        }
-
-        // 1️⃣ DELETE ALL IMAGES FROM CLOUDINARY
-        for (const image of property.images) {
-            await cloudinary.uploader.destroy(image.public_id);
-        }
-
-        await Property.findByIdAndDelete(req.params.id) 
-        res.status(200).json({ message: "Property deleted successfully" })
-        
+        res.status(200).json(property);
+    } catch (err) {
+        next(err);
     }
-    catch (err) {
-        res.status(500).json({ message: err.message })
+};
+
+// Update property
+exports.updateProperty = async (req, res, next) => {
+    try {
+        const updatedProperty = await propertyService.updateProperty({
+            propertyId: req.params.id,
+            user: req.user,
+            body: req.body,
+            files: req.files,
+        });
+
+        res.status(200).json(updatedProperty);
+    } catch (err) {
+        next(err);
     }
-}
+};
+
+// Delete property
+exports.deleteProperty = async (req, res, next) => {
+    try {
+        await propertyService.deleteProperty({
+            propertyId: req.params.id,
+            user: req.user,
+        });
+
+        res.status(200).json({ message: "Property deleted successfully" });
+    } catch (err) {
+        next(err);
+    }
+};

@@ -64,7 +64,7 @@ exports.rejectBooking = async (req, res, next) => {
 /////////////////////////
 // Upload payment receipt
 /////////////////////////
-exports.uploadPaymentReceipt = async (req, res) => {
+exports.uploadPaymentReceipt = async (req, res, next) => {
     try {
         const booking = await BookingService.uploadPaymentReceipt({
             bookingId: req.params.bookingId,

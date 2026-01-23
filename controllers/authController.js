@@ -12,7 +12,7 @@ exports.register = async (req, res, next) => {
 }
 
 // @route   POST /api/auth/login
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
 };
 
 // @route   POST /api/auth/refresh-token
-exports.refreshToken = async (req, res) => {
+exports.refreshToken = async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken;
 
@@ -74,7 +74,7 @@ exports.refreshToken = async (req, res) => {
 };
 
 // @route   POST /api/auth/logout
-exports.logout = async (req, res) => {
+exports.logout = async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken;
 

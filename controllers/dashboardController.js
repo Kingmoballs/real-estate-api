@@ -1,6 +1,5 @@
 const Property = require("../models/Property");
 const Booking = require("../models/Booking");
-const Message = require("../models/Message");
 
 exports.getAgentDashboard = async (req, res) => {
     try {
@@ -58,7 +57,7 @@ exports.getAgentDashboard = async (req, res) => {
 
         res.status(200).json({
             summary: {
-                totalProperties: agentProperties.length,
+                totalProperties,
                 totalBookings,
                 totalRevenue,
                 totalMessages
