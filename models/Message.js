@@ -40,6 +40,11 @@ const messageSchema = new mongoose.Schema(
             default: "",
         },
 
+        deliveredTo: [{ 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: "User" 
+        }],
+
         isReply: {
             type: Boolean,
             default: false,

@@ -1,5 +1,9 @@
 const Property = require("../models/Property");
 
-exports.findById = async (id) => {
-    return Property.findById(id);
+// Find property by ID
+exports.findById = async (id, session) => {
+    const query = Property.findById(id);
+    if (session) query.session(session);
+    return query;
 };
+

@@ -3,6 +3,7 @@ const ApiError = require("../utils/ApiError");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+// Helper to generate JWT token
 const generateToken = (userId)  => {
     return jwt.sign(
         { id: userId }, 
@@ -11,6 +12,7 @@ const generateToken = (userId)  => {
     )
 };
 
+// Register new user
 exports.register = async (payload) => {
     const { name, email, password, phone, role } = payload;
 
@@ -44,6 +46,7 @@ exports.register = async (payload) => {
     };
 };
 
+// Login user
 exports.login = async ({ email, password }) => {
     const user = await userRepository.findByEmailWithPassword(email);
 
@@ -78,6 +81,7 @@ exports.login = async ({ email, password }) => {
     };
 };
 
+// Refresh JWT tokens
 exports.refreshToken = async ({ refreshToken }) => {
     if (!refreshToken) {
         throw new ApiError(401, "No refresh token provided");
@@ -98,7 +102,7 @@ exports.refreshToken = async ({ refreshToken }) => {
         throw new ApiError(404, "User not found");
     }
 
-    // 🔐 Critical security check
+    // Security check
     if (user.refreshToken !== refreshToken) {
         throw new ApiError(401, "Refresh token mismatch");
     }
@@ -124,6 +128,7 @@ exports.refreshToken = async ({ refreshToken }) => {
     };
 };
 
+// Logout user
 exports.logout = async ({ refreshToken }) => {
     if (!refreshToken) return;
 

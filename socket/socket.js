@@ -4,7 +4,7 @@ const cookie = require("cookie");
 const User = require("../models/user");
 const { onlineUsers } = require("../utils/onlineUsers");
 
-let io; //shared instance
+let io; 
 
 const initSocket = (httpServer) => {
     io = new Server(httpServer, {

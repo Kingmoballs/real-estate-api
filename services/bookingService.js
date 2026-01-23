@@ -8,7 +8,7 @@ const ApiError = require("../utils/ApiError");
 
 const { REUPLOAD_TIMEOUT_HOURS } = require("../config/bookingRules");
 
-
+// Create new booking
 exports.createBooking = async ({ user, payload }) => {
     const session = await mongoose.startSession();
     let lockToken;
@@ -92,6 +92,7 @@ exports.createBooking = async ({ user, payload }) => {
     }
 };
 
+// Approve booking
 exports.approveBooking = async ({ bookingId, agent }) => {
     const session = await mongoose.startSession();
 
@@ -146,6 +147,7 @@ exports.approveBooking = async ({ bookingId, agent }) => {
     }
 }
 
+// Reject booking
 exports.rejectBooking = async ({ bookingId, agent, reason }) => {
     const session = await mongoose.startSession();
 
@@ -204,6 +206,7 @@ exports.rejectBooking = async ({ bookingId, agent, reason }) => {
     }
 };
 
+// Upload payment receipt for booking
 exports.uploadPaymentReceipt = async ({ bookingId, user, file }) => {
     const session = await mongoose.startSession();
 
@@ -292,6 +295,7 @@ exports.uploadPaymentReceipt = async ({ bookingId, user, file }) => {
     }
 };
 
+// Verify payment receipt for booking
 exports.verifyPaymentReceipt = async ({ bookingId, user }) => {
     const booking =
         await bookingRepository.findByIdWithProperty(bookingId);
@@ -340,6 +344,7 @@ exports.verifyPaymentReceipt = async ({ bookingId, user }) => {
     return updatedBooking;
 };
 
+// Reject payment receipt for booking
 exports.rejectPaymentReceipt = async ({
     bookingId,
     user,

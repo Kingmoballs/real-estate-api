@@ -1,5 +1,6 @@
 const Booking = require("../models/Booking");
 
+// Find conflicting booking for a property within a date range
 exports.findConflictingBooking = async ({
     property,
     start,
@@ -15,21 +16,25 @@ exports.findConflictingBooking = async ({
     }).session(session);
 };
 
+// Find booking by ID with populated property details
 exports.findByIdWithProperty = (bookingId, session) => {
     return Booking.findById(bookingId)
         .populate("property")
         .session(session);
 };
 
+// Find booking by ID
 exports.findById = (bookingId, session) => {
     return Booking.findById(bookingId).session(session);
 }
 
+// Update booking status
 exports.updateStatus = (booking, status, session) => {
     booking.bookingStatus = status;
     return booking.save({ session })
 };
 
+// Reject booking with reason
 exports.reject = (booking, reason, session) => {
     booking.bookingStatus = "rejected";
     booking.rejectionReason = reason;
@@ -37,6 +42,7 @@ exports.reject = (booking, reason, session) => {
 
 }
 
+// Upload payment receipt for booking
 exports.uploadReceipt = (booking, receiptPath, session) => {
     booking.paymentReceipt = receiptPath;
     booking.paymentStatus = "receiptUploaded";
@@ -44,6 +50,7 @@ exports.uploadReceipt = (booking, receiptPath, session) => {
     return booking.save({ session })
 }
 
+// Verify payment receipt for booking
 exports.verifyPaymentReceipt = async (booking, { activate }) => {
     booking.paymentStatus = "verified";
     booking.receiptVerifiedAt = new Date();
@@ -55,6 +62,7 @@ exports.verifyPaymentReceipt = async (booking, { activate }) => {
     return booking.save();
 };
 
+// Reject payment receipt for booking
 exports.rejectPaymentReceipt = async (booking, reason) => {
     booking.paymentStatus = "rejected";
     booking.receiptRejectionReason = 
@@ -64,8 +72,10 @@ exports.rejectPaymentReceipt = async (booking, reason) => {
     return booking.save()
 }
 
+// Create new booking
 exports.create = async (data, session) => {
     return Booking.create([data], { session }).then(res => res[0]);
 };
 
+// Save booking
 exports.save = (booking) => booking.save();

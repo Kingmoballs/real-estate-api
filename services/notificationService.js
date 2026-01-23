@@ -2,7 +2,7 @@ const Notification = require("../models/Notification");
 const { getIO } = require("../socket/socket");
 
 
-
+// Create booking notification for agent
 exports.createBookingNotification = async (
     { agentId, guestName },
     session
@@ -20,6 +20,7 @@ exports.createBookingNotification = async (
     ).then(res => res[0]);
 };
 
+// Create booking approval notification for guest
 exports.createBookingApprovalNotification = async ({ guestId }) => {
     return Notification.create({
         user: guestId,
@@ -29,6 +30,7 @@ exports.createBookingApprovalNotification = async ({ guestId }) => {
     });
 };
 
+// Create booking rejection notification for guest
 exports.createBookingRejectionNotification = async ({ guestId, reason }) => {
     return Notification.create({
         user: guestId,
@@ -38,6 +40,7 @@ exports.createBookingRejectionNotification = async ({ guestId, reason }) => {
     });
 };
 
+// Create payment receipt uploaded notification for agent
 exports.createPaymentReceiptUploadedNotification = async ({
     agentId,
     guestName
@@ -50,6 +53,7 @@ exports.createPaymentReceiptUploadedNotification = async ({
     });
 };
 
+// Create payment verified notification for guest
 exports.createPaymentVerifiedNotification = async (booking) => {
     if (!booking.guest) return null;
 
@@ -67,6 +71,7 @@ exports.createPaymentVerifiedNotification = async (booking) => {
     });
 };
 
+// Create payment receipt rejected notification for guest
 exports.createPaymentReceiptRejectedNotification = async ({
     guestId,
     reason,
@@ -79,6 +84,7 @@ exports.createPaymentReceiptRejectedNotification = async ({
     });
 };
 
+// Emit booking notification via socket
 exports.emitBookingNotification = (notification) => {
     const io = getIO();
 
@@ -87,5 +93,35 @@ exports.emitBookingNotification = (notification) => {
         type: notification.type,
         title: notification.title,
         body: notification.body
+    });
+};
+
+// Create message notification for recipient
+exports.createMessageNotification = async (
+    { recipientId, conversationId, messageId },
+    session
+) => {
+    return Notification.create(
+        [
+            {
+                user: recipientId,
+                type: "message",
+                conversation: conversationId,
+                message: messageId,
+            },
+        ],
+        { session }
+    ).then(res => res[0]);
+};
+
+// Emit message notification via socket
+exports.emitMessageNotification = (notification) => {
+    const io = getIO();
+
+    io.to(notification.user.toString()).emit("notification", {
+        id: notification._id,
+        type: notification.type,
+        conversationId: notification.conversation,
+        message: "New message received",
     });
 };

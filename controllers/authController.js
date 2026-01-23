@@ -1,6 +1,4 @@
-const jwt = require("jsonwebtoken");
 const authService = require("../services/authService")
-
 
 // @route   POST /api/auth/register
 exports.register = async (req, res, next) => {
@@ -46,13 +44,11 @@ exports.login = async (req, res) => {
         });
 
     } catch (err) {
-        res.status(err.statusCode || 500).json({
-            message: err.message || "Login failed"
-        });
+        next(err)
     }
 };
 
-
+// @route   POST /api/auth/refresh-token
 exports.refreshToken = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
@@ -73,13 +69,11 @@ exports.refreshToken = async (req, res) => {
         res.status(200).json({ accessToken });
 
     } catch (err) {
-        res.status(err.statusCode || 500).json({
-            message: err.message || "Failed to refresh token"
-        });
+        next(err)
     }
 };
 
-
+// @route   POST /api/auth/logout
 exports.logout = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
@@ -94,8 +88,6 @@ exports.logout = async (req, res) => {
         res.status(200).json({ message: "Logged out successfully" });
 
     } catch (err) {
-        res.status(500).json({
-            message: "Logout failed"
-        });
+        next(err)
     }
 };
