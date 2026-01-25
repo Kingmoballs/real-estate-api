@@ -29,3 +29,8 @@ exports.save = (user) => {
 exports.createUser = (data) => {
     return User.create(data);
 }
+
+// Find user's last seen by ID
+exports.findUserLastSeenById = async (userId) => {
+    return User.findById(userId).select("lastSeen");
+};

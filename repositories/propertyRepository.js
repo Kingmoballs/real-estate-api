@@ -24,3 +24,13 @@ exports.deleteById = async (id, session = null) => {
     if (session) query.session(session);
     return query;
 };
+
+// Count properties by agent
+exports.countByAgent = async (agentId) => {
+    return Property.countDocuments({ postedBy: agentId });
+};
+
+// Find properties by agent with selected fields
+exports.findByAgent = async (agentId, fields = []) => {
+    return Property.find({ postedBy: agentId }).select(fields.join(" "));
+};

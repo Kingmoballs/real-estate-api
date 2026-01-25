@@ -1,46 +1,45 @@
 const Notification = require("../models/Notification");
+const notificationService = require("../services/notificationService");
 
 // Get user notifications
-exports.getNotifications = async (req, res) => {
+exports.getNotifications = async (req, res, next) => {
     try {
-        const notifications = await Notification.find({
-            user: req.user.id
-        })
-            .populate("conversation")
-            .populate("message")
-            .sort({ createdAt: -1 });
+        const notifications = await notificationService.getUserNotifications({
+            user: req.user,
+        });
 
         res.status(200).json(notifications);
     } catch (err) {
-        res.status(500).json({ message: "Failed to fetch notifications" });
+        next(err);
     }
 };
 
 // Mark one notification as read
-exports.markAsRead = async (req, res) => {
+exports.markAsRead = async (req, res, next) => {
     try {
-        const notification = await Notification.findOneAndUpdate(
-            { _id: req.params.id, user: req.user.id },
-            { isRead: true },
-            { new: true }
-        );
+        const notification =
+            await notificationService.markNotificationAsRead({
+                notificationId: req.params.id,
+                user: req.user,
+            });
 
         res.status(200).json(notification);
     } catch (err) {
-        res.status(500).json({ message: "Failed to update notification" });
+        next(err);
     }
 };
 
 // Unread count
-exports.getUnreadCount = async (req, res) => {
+exports.getUnreadCount = async (req, res, next) => {
     try {
-        const count = await Notification.countDocuments({
-            user: req.user.id,
-            isRead: false
-        });
+        const unread =
+            await notificationService.getUnreadCount({
+                userId: req.user.id,
+            });
 
-        res.status(200).json({ unread: count });
+        res.status(200).json({ unread });
     } catch (err) {
-        res.status(500).json({ message: "Failed to get unread count" });
+        next(err);
     }
 };
+

@@ -1,6 +1,40 @@
 const Notification = require("../models/Notification");
+const notificationRepository = require("../repositories/notificationRepository");
+const ApiError = require("../utils/ApiError");
+
 const { getIO } = require("../socket/socket");
 
+
+// Get notifications for user
+exports.getUserNotifications = async ({ user }) => {
+    return notificationRepository.findByUser(user.id);
+};
+
+// Mark one notification as read
+exports.markNotificationAsRead = async ({ notificationId, user }) => {
+    const notification = await notificationRepository.markAsRead(
+        notificationId,
+        user.id
+    );
+
+    if (!notification) {
+        throw new ApiError(404, "Notification not found");
+    }
+
+    return notification;
+};
+
+
+exports.getUnreadCount = async ({ userId }) => {
+    return Notification.countDocuments({
+        user: userId,
+        isRead: false,
+    });
+};
+
+/////////////////////////
+// Booking Notifications
+/////////////////////////
 
 // Create booking notification for agent
 exports.createBookingNotification = async (
@@ -95,6 +129,10 @@ exports.emitBookingNotification = (notification) => {
         body: notification.body
     });
 };
+
+/////////////////////////
+// Message Notifications
+/////////////////////////
 
 // Create message notification for recipient
 exports.createMessageNotification = async (

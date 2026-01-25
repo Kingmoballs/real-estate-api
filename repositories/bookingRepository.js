@@ -79,3 +79,53 @@ exports.create = async (data, session) => {
 
 // Save booking
 exports.save = (booking) => booking.save();
+
+// Aggregate functions for bookings related to properties
+exports.countByProperties = async (propertyIds) => {
+    return Booking.countDocuments({ property: { $in: propertyIds } });
+};
+
+// Calculate total revenue for properties
+exports.calculateTotalRevenue = async (propertyIds) => {
+    const result = await Booking.aggregate([
+        { $match: { property: { $in: propertyIds } } },
+        { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+    ]);
+
+    return result.length ? result[0].total : 0;
+};
+
+// Get booking statistics for properties
+exports.getPropertyStats = async (propertyIds) => {
+    return Booking.aggregate([
+        { $match: { property: { $in: propertyIds } } },
+        {
+            $group: {
+                _id: "$property",
+                bookingCount: { $sum: 1 },
+                totalRevenue: { $sum: "$totalPrice" },
+            },
+        },
+    ]);
+};
+
+exports.getStatsByDateRange = async ({ propertyIds, startDate, endDate }) => {
+    return Booking.aggregate([
+        {
+            $match: {
+                property: { $in: propertyIds },
+                createdAt: {
+                    $gte: startDate,
+                    $lte: endDate,
+                },
+            },
+        },
+        {
+            $group: {
+                _id: null,
+                totalBookings: { $sum: 1 },
+                totalRevenue: { $sum: "$totalPrice" },
+            },
+        },
+    ]);
+};
