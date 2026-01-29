@@ -1,4 +1,3 @@
-const Notification = require("../models/Notification");
 const notificationService = require("../services/notificationService");
 
 // Get user notifications

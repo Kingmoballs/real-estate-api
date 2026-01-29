@@ -1,7 +1,4 @@
-const Conversation = require("../models/Conversation");
-const ChatMessage = require("../models/ChatMessage");
-const chatService = require("../services/chatService")
-const { getIO } = require("../socket/socket");
+const chatService = require("../services/chatService");
 
 // Send a message
 exports.sendMessage = async (req, res, next) => {
