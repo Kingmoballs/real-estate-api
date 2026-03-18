@@ -10,7 +10,7 @@ Why this project is unique:
 
 ## Features
 
-## USER AUTHENTICATION:
+### USER AUTHENTICATION:
 - Users can register and log in to the system
 - Authentication is done using JWT tokens
 - Users can log out and refresh their tokens
