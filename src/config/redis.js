@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === "test") {
         on: jest.fn(),
     };
 } else {
-    redis = new Redis(process.env.REDIS_PUBLIC_URL);
+    redis = new Redis(process.env.REDIS_URL);
 
     redis.on("error", (err) => {
         console.error("Redis error", err);
