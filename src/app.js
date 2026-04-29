@@ -4,7 +4,7 @@ const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 
 const corsMiddleware = require("@/shared/middleware/corsMiddleware");
-const sanitizeBody = require("@/shared/middleware/sanitizeHTMLMiddleware");
+const sanitizeBody = require("@/shared/middleware/sanitizeHtmlMiddleware");
 const httpLogger = require("@/shared/middleware/httpLogger");
 const { apiLimiter, authLimiter } = require("./shared/middleware/rateLimit");
 const errorHandler = require("@/shared/middleware/errorMiddleware");
