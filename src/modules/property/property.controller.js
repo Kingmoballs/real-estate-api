@@ -1,69 +1,254 @@
-const propertyService = require("./property.service");
+const propertyService = require(
+    "./property.service"
+);
 
-// Create a new property
-exports.createProperty = async (req, res, next) => {
+exports.createProperty = async (
+    req,
+    res,
+    next
+) => {
     try {
-        const property = await propertyService.createProperty({
-            user: req.user,
-            body: req.body,
-            files: req.files,
+        const property =
+            await propertyService.createProperty({
+                user: req.user,
+                body: req.body,
+                files: req.files,
+            });
+
+        res.status(201).json({
+            message:
+                property.listingStatus === "draft"
+                    ? "Property draft created successfully"
+                    : "Property submitted for review successfully",
+            property,
         });
-
-        res.status(201).json(property);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-// Get all properties with optional filters
-exports.getAllProperties = async (req, res, next) => {
+exports.getPublicProperties = async (
+    req,
+    res,
+    next
+) => {
     try {
-        const properties = await propertyService.getAllProperties(req.query);
-        res.status(200).json(properties);
-    } catch (err) {
-        next(err);
+        const result =
+            await propertyService
+                .getPublicProperties(req.query);
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
     }
 };
 
-// Get property by ID
-exports.getPropertyById = async (req, res, next) => {
+exports.getPublicPropertyById = async (
+    req,
+    res,
+    next
+) => {
     try {
-        const property = await propertyService.getPropertyById(req.params.id);
-        if (!property) {
-            return res.status(404).json({ message: "Property not found" });
-        }
-        res.status(200).json(property);
-    } catch (err) {
-        next(err);
-    }
-};
+        const property =
+            await propertyService
+                .getPublicPropertyById(
+                    req.params.id
+                );
 
-// Update property
-exports.updateProperty = async (req, res, next) => {
-    try {
-        const updatedProperty = await propertyService.updateProperty({
-            propertyId: req.params.id,
-            user: req.user,
-            body: req.body,
-            files: req.files,
+        res.status(200).json({
+            property,
         });
-
-        res.status(200).json(updatedProperty);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-// Delete property
-exports.deleteProperty = async (req, res, next) => {
+exports.getAgentProperties = async (
+    req,
+    res,
+    next
+) => {
     try {
-        await propertyService.deleteProperty({
-            propertyId: req.params.id,
-            user: req.user,
-        });
+        const result =
+            await propertyService
+                .getAgentProperties({
+                    user: req.user,
+                    query: req.query,
+                });
 
-        res.status(200).json({ message: "Property deleted successfully" });
-    } catch (err) {
-        next(err);
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.getAgentPropertyById = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService
+                .getAgentPropertyById({
+                    propertyId: req.params.id,
+                    user: req.user,
+                });
+
+        res.status(200).json({
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.getAdminProperties = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const result =
+            await propertyService
+                .getAdminProperties(req.query);
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.getAdminPropertyById = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService
+                .getAdminPropertyById(
+                    req.params.id
+                );
+
+        res.status(200).json({
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.updateProperty = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService.updateProperty({
+                propertyId: req.params.id,
+                user: req.user,
+                body: req.body,
+                files: req.files,
+            });
+
+        res.status(200).json({
+            message:
+                "Property updated successfully",
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.submitPropertyForReview = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService
+                .submitPropertyForReview({
+                    propertyId: req.params.id,
+                    user: req.user,
+                });
+
+        res.status(200).json({
+            message:
+                "Property submitted for review successfully",
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.approveProperty = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService.approveProperty({
+                propertyId: req.params.id,
+                admin: req.user,
+            });
+
+        res.status(200).json({
+            message:
+                "Property published successfully",
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.rejectProperty = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService.rejectProperty({
+                propertyId: req.params.id,
+                admin: req.user,
+                reason: req.body.reason,
+            });
+
+        res.status(200).json({
+            message:
+                "Property rejected successfully",
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.archiveProperty = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService.archiveProperty({
+                propertyId: req.params.id,
+                user: req.user,
+            });
+
+        res.status(200).json({
+            message:
+                "Property archived successfully",
+            property,
+        });
+    } catch (error) {
+        next(error);
     }
 };

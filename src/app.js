@@ -24,6 +24,7 @@ const chatRoutes = require("@/modules/chat/chat.route");
 const dashboardRoutes = require("@/modules/dashboard/dashboard.route");
 const notificationRoutes = require("@/modules/notification/notification.route");
 const userRoutes = require("@/modules/user/user.route");
+const agentApplicationRoutes = require("@/modules/agentApplication/agentApplication.route");
 
 const app = express();
 
@@ -89,6 +90,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/agent-applications", agentApplicationRoutes);
 
 ////////////////
 //Error handler

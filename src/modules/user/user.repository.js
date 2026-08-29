@@ -11,8 +11,14 @@ exports.findByEmailWithPassword = (email) => {
 };
 
 // Find user by ID
-exports.findById = (id) => {
-    return User.findById(id);
+exports.findById = (id, session = null) => {
+    const query = User.findById(id);
+
+    if (session) {
+        query.session(session);
+    }
+
+    return query;
 };
 
 // Find user by ID including refresh token
@@ -26,7 +32,11 @@ exports.findByRefreshToken = (refreshToken) => {
 };
 
 // Save user document
-exports.save = (user) => {
+exports.save = (user, session = null) => {
+    if (session) {
+        return user.save({ session });
+    }
+
     return user.save();
 };
 

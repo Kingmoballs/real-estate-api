@@ -5,49 +5,70 @@ const protect = async (req, res, next) => {
     try {
         let token;
 
-        // Try reading token from cookies
         if (req.cookies?.token) {
             token = req.cookies.token;
         }
-        
-        // Fallback: Bearer token for Mobile app and Postman
-        if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-            token = req.headers.authorization.split(" ")[1];
+
+        const authorizationHeader =
+            req.headers.authorization;
+
+        if (
+            !token &&
+            authorizationHeader?.startsWith("Bearer ")
+        ) {
+            token = authorizationHeader.slice(7).trim();
         }
 
-        // 2. If no token, block request
-        if (!token) 
-            return res.status(401).json({ message: "Not authorized. No token provided" });
+        if (!token) {
+            return res.status(401).json({
+                message:
+                    "Not authorized. No token provided",
+            });
+        }
 
-        // 3. Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
 
-        // 4. Ensure user still exists
-        const user = await User.findById(decoded.id).select("-password");
+        const user = await User.findById(decoded.id);
+
         if (!user) {
-            return res.status(401).json({ message: "User no longer exists." });
+            return res.status(401).json({
+                message: "User no longer exists",
+            });
         }
 
-        // 5. Grant access
         req.user = user;
-        
+
         next();
+    } catch (error) {
+        return res.status(401).json({
+            message:
+                "Not authorized. Invalid or expired token",
+        });
     }
-    
-    catch (error) {
-        console.error("Auth Error:", error);
-        return res.status(401).json({ message: "Not authorized. Invalid token." });
-    }
-}
+};
 
-// Only agents can crate property
+const authorizeRoles = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({
+                message: "Authentication required",
+            });
+        }
 
-const requireAgent = async (req, res, next) => {
-    if (req.user.role !== "agent") {
-        return res.status(403).json({ message: "Only agents can perform this action" })
-    }
+        if (!allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({
+                message: "You do not have permission to perform this action",
+            });
+        }
 
-    next()
-}
+        next();
+    };
+};
 
-module.exports = { protect, requireAgent };
+module.exports = {
+    protect,
+    authorizeRoles,
+};

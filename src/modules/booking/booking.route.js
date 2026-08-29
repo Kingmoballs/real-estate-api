@@ -6,18 +6,16 @@ const {
     rejectBooking,
     uploadPaymentReceipt,
     verifyPaymentReceipt,
-    rejectPaymentReceipt
+    rejectPaymentReceipt,
 } = require("./booking.controller");
 
-const isAgent =
-    require("@/shared/middleware/isAgentMiddleware");
-
 const {
-    protect
+    protect,
+    authorizeRoles,
 } = require("@/shared/middleware/authMiddleware");
 
 const {
-    createBookingSchema
+    createBookingSchema,
 } = require("./booking.validator");
 
 const validate =
@@ -30,6 +28,13 @@ const uploadError =
     require("@/shared/middleware/uploadErrorMiddleware");
 
 const router = express.Router();
+
+const agentOnly = authorizeRoles("agent");
+
+const agentOrAdmin = authorizeRoles(
+    "agent",
+    "admin"
+);
 
 router.post(
     "/",
@@ -49,28 +54,28 @@ router.post(
 router.patch(
     "/:bookingId/approve",
     protect,
-    isAgent,
+    agentOnly,
     approveBooking
 );
 
 router.patch(
     "/:bookingId/reject",
     protect,
-    isAgent,
+    agentOnly,
     rejectBooking
 );
 
 router.patch(
     "/:bookingId/verify-receipt",
     protect,
-    isAgent,
+    agentOrAdmin,
     verifyPaymentReceipt
 );
 
 router.patch(
     "/:bookingId/reject-receipt",
     protect,
-    isAgent,
+    agentOrAdmin,
     rejectPaymentReceipt
 );
 

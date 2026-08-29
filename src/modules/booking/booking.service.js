@@ -25,10 +25,14 @@ exports.createBooking = async ({ user, payload }) => {
         session.startTransaction();
 
         const apartment = await propertyRepository.findById(property);
-        if (!apartment || apartment.listingType !== "shortlet") {
+        if (
+            !apartment ||
+            apartment.listingType !== "shortlet" ||
+            apartment.listingStatus !== "published"
+        ) {
             throw new ApiError(
                 400,
-                "Only shortlet properties can be booked by date"
+                "Only published shortlet properties can be booked"
             );
         }
 

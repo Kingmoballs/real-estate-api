@@ -91,6 +91,54 @@ const propertySchema = new mongoose.Schema(
             enum: ["night", "month", "year", "total"],
             required: true,
         },
+        listingStatus: {
+            type: String,
+            enum: [
+                "draft",
+                "pendingReview",
+                "published",
+                "rejected",
+                "unavailable",
+                "rented",
+                "sold",
+                "archived",
+            ],
+            default: "pendingReview",
+            index: true,
+        },
+
+        submittedForReviewAt: {
+            type: Date,
+            default: Date.now,
+        },
+
+        reviewedAt: {
+            type: Date,
+            default: null,
+        },
+
+        reviewedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
+
+        rejectionReason: {
+            type: String,
+            trim: true,
+            maxlength: 500,
+            default: null,
+        },
+
+        publishedAt: {
+            type: Date,
+            default: null,
+        },
+
+        archivedAt: {
+            type: Date,
+            default: null,
+        },
 
         agentName: {
             type: String,
@@ -134,6 +182,7 @@ propertySchema.pre("validate", function () {
 });
 
 propertySchema.index({
+    listingStatus: 1,
     listingType: 1,
     propertyType: 1,
     price: 1,

@@ -1,6 +1,5 @@
 const Property = require("./property.model");
 
-// Find property by ID
 exports.findById = (id, session = null) => {
     const query = Property.findById(id);
 
@@ -11,30 +10,113 @@ exports.findById = (id, session = null) => {
     return query;
 };
 
-// Create new property
-exports.create = async (propertyData, session = null) => {
+exports.findPublicById = (id) => {
+    return Property.findOne({
+        _id: id,
+        listingStatus: "published",
+    }).populate(
+        "postedBy",
+        "name email phone"
+    );
+};
+
+exports.findByIdWithDetails = (id) => {
+    return Property.findById(id)
+        .populate(
+            "postedBy",
+            "name email phone role"
+        )
+        .populate(
+            "reviewedBy",
+            "name email"
+        );
+};
+
+exports.create = (
+    propertyData,
+    session = null
+) => {
     const property = new Property(propertyData);
-    return session ? property.save({ session }) : property.save();
+
+    if (session) {
+        return property.save({ session });
+    }
+
+    return property.save();
 };
 
-// Find all properties with optional filters
-exports.findAll = async (filters = {}) => {
-    return Property.find(filters).sort({ createdAt: -1 });
+exports.save = (
+    property,
+    session = null
+) => {
+    if (session) {
+        return property.save({ session });
+    }
+
+    return property.save();
 };
 
-// Delete property by ID
-exports.deleteById = async (id, session = null) => {
-    const query = Property.findByIdAndDelete(id);
-    if (session) query.session(session);
-    return query;
+exports.findPaginated = async ({
+    filters = {},
+    page = 1,
+    limit = 20,
+    sort = { createdAt: -1 },
+}) => {
+    const skip = (page - 1) * limit;
+
+    const [properties, totalItems] =
+        await Promise.all([
+            Property.find(filters)
+                .populate(
+                    "postedBy",
+                    "name email phone role"
+                )
+                .populate(
+                    "reviewedBy",
+                    "name email"
+                )
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+
+            Property.countDocuments(filters),
+        ]);
+
+    const totalPages = Math.ceil(
+        totalItems / limit
+    );
+
+    return {
+        properties,
+        pagination: {
+            currentPage: page,
+            itemsPerPage: limit,
+            totalItems,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+        },
+    };
 };
 
-// Count properties by agent
-exports.countByAgent = async (agentId) => {
-    return Property.countDocuments({ postedBy: agentId });
+exports.countByAgent = (agentId) => {
+    return Property.countDocuments({
+        postedBy: agentId,
+        listingStatus: {
+            $ne: "archived",
+        },
+    });
 };
 
-// Find properties by agent with selected fields
-exports.findByAgent = async (agentId, fields = []) => {
-    return Property.find({ postedBy: agentId }).select(fields.join(" "));
+exports.findByAgent = (
+    agentId,
+    fields = []
+) => {
+    return Property.find({
+        postedBy: agentId,
+        listingStatus: {
+            $ne: "archived",
+        },
+    }).select(fields.join(" "));
 };

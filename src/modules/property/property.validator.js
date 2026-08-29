@@ -12,17 +12,34 @@ const propertyTypes = [
     "warehouse",
 ];
 
-const listingTypeSchema = Joi.string()
-    .valid("shortlet", "rent", "sale");
+const listingStatuses = [
+    "draft",
+    "pendingReview",
+    "published",
+    "rejected",
+    "unavailable",
+    "rented",
+    "sold",
+    "archived",
+];
 
-const propertyTypeSchema = Joi.string()
-    .valid(...propertyTypes);
+const listingTypeSchema = Joi.string().valid(
+    "shortlet",
+    "rent",
+    "sale"
+);
+
+const propertyTypeSchema = Joi.string().valid(
+    ...propertyTypes
+);
 
 const pricePeriodSchema = Joi.when("listingType", {
     switch: [
         {
             is: "shortlet",
-            then: Joi.string().valid("night").required(),
+            then: Joi.string()
+                .valid("night")
+                .required(),
         },
         {
             is: "rent",
@@ -32,51 +49,172 @@ const pricePeriodSchema = Joi.when("listingType", {
         },
         {
             is: "sale",
-            then: Joi.string().valid("total").required(),
+            then: Joi.string()
+                .valid("total")
+                .required(),
         },
     ],
     otherwise: Joi.forbidden(),
 });
 
-const createPropertySchema = Joi.object({
-    title: Joi.string().trim().min(3).max(200).required(),
-    description: Joi.string().trim().min(10).required(),
-    location: Joi.string().trim().min(2).required(),
+const propertyFields = {
+    title: Joi.string()
+        .trim()
+        .min(3)
+        .max(200)
+        .required(),
+
+    description: Joi.string()
+        .trim()
+        .min(10)
+        .max(5000)
+        .required(),
+
+    location: Joi.string()
+        .trim()
+        .min(2)
+        .max(300)
+        .required(),
 
     listingType: listingTypeSchema.required(),
+
     propertyType: propertyTypeSchema.required(),
 
-    price: Joi.number().positive().required(),
+    price: Joi.number()
+        .positive()
+        .required(),
+
     currency: Joi.string()
         .uppercase()
         .valid("NGN", "USD")
         .default("NGN"),
+
     pricePeriod: pricePeriodSchema,
 
-    bedrooms: Joi.number().integer().min(0).default(0),
-    bathrooms: Joi.number().integer().min(0).default(0),
+    bedrooms: Joi.number()
+        .integer()
+        .min(0)
+        .default(0),
+
+    bathrooms: Joi.number()
+        .integer()
+        .min(0)
+        .default(0),
+};
+
+const createPropertySchema = Joi.object({
+    ...propertyFields,
+
+    submissionAction: Joi.string()
+        .valid("draft", "submit")
+        .default("submit"),
 });
 
 const updatePropertySchema = Joi.object({
-    title: Joi.string().trim().min(3).max(200).required(),
-    description: Joi.string().trim().min(10).required(),
-    location: Joi.string().trim().min(2).required(),
+    ...propertyFields,
+});
 
-    listingType: listingTypeSchema.required(),
-    propertyType: propertyTypeSchema.required(),
+const publicPropertyQuerySchema = Joi.object({
+    listingType: listingTypeSchema.optional(),
+    propertyType: propertyTypeSchema.optional(),
 
-    price: Joi.number().positive().required(),
+    pricePeriod: Joi.string()
+        .valid("night", "month", "year", "total")
+        .optional(),
+
     currency: Joi.string()
         .uppercase()
         .valid("NGN", "USD")
-        .default("NGN"),
-    pricePeriod: pricePeriodSchema,
+        .optional(),
 
-    bedrooms: Joi.number().integer().min(0),
-    bathrooms: Joi.number().integer().min(0),
+    location: Joi.string()
+        .trim()
+        .max(200)
+        .optional(),
+
+    minPrice: Joi.number()
+        .min(0)
+        .optional(),
+
+    maxPrice: Joi.number()
+        .min(0)
+        .optional(),
+
+    bedrooms: Joi.number()
+        .integer()
+        .min(0)
+        .optional(),
+
+    bathrooms: Joi.number()
+        .integer()
+        .min(0)
+        .optional(),
+
+    sort: Joi.string()
+        .valid("newest", "priceAsc", "priceDesc")
+        .default("newest"),
+
+    page: Joi.number()
+        .integer()
+        .min(1)
+        .default(1),
+
+    limit: Joi.number()
+        .integer()
+        .min(1)
+        .max(100)
+        .default(20),
+});
+
+const ownedPropertyQuerySchema = Joi.object({
+    status: Joi.string()
+        .valid(...listingStatuses)
+        .optional(),
+
+    page: Joi.number()
+        .integer()
+        .min(1)
+        .default(1),
+
+    limit: Joi.number()
+        .integer()
+        .min(1)
+        .max(100)
+        .default(20),
+});
+
+const adminPropertyQuerySchema = Joi.object({
+    status: Joi.string()
+        .valid(...listingStatuses)
+        .optional(),
+
+    listingType: listingTypeSchema.optional(),
+
+    page: Joi.number()
+        .integer()
+        .min(1)
+        .default(1),
+
+    limit: Joi.number()
+        .integer()
+        .min(1)
+        .max(100)
+        .default(20),
+});
+
+const rejectPropertySchema = Joi.object({
+    reason: Joi.string()
+        .trim()
+        .min(10)
+        .max(500)
+        .required(),
 });
 
 module.exports = {
     createPropertySchema,
     updatePropertySchema,
+    publicPropertyQuerySchema,
+    ownedPropertyQuerySchema,
+    adminPropertyQuerySchema,
+    rejectPropertySchema,
 };
