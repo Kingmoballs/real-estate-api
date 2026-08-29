@@ -1,0 +1,51 @@
+services:
+  - type: keyvalue
+    name: real-estate-redis
+    plan: free
+    region: frankfurt
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+  - type: web
+    name: real-estate-api
+    runtime: node
+    plan: free
+    region: frankfurt
+
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: REDIS_URL
+        fromService:
+          name: real-estate-redis
+          type: keyvalue
+          property: connectionString
+
+      - key: MONGO_URI
+        sync: false
+
+      - key: JWT_SECRET
+        sync: false
+
+      - key: REFRESH_TOKEN_SECRET
+        sync: false
+
+      - key: CLIENT_URL
+        sync: false
+
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+
+      - key: CLOUDINARY_API_KEY
+        sync: false
+
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      - key: REUPLOAD_TIMEOUT_HOURS
+        value: "24"

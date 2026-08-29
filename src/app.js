@@ -70,6 +70,14 @@ app.use("/api", apiLimiter);
 /////////
 //Routes
 /////////
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        service: "real-estate-api",
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.get("/", (req, res) => {
     res.send("Real estate api is running...")
 });
