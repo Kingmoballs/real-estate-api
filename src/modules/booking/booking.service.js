@@ -25,8 +25,11 @@ exports.createBooking = async ({ user, payload }) => {
         session.startTransaction();
 
         const apartment = await propertyRepository.findById(property);
-        if (!apartment || apartment.propertyType !== "serviced") {
-            throw new ApiError(400, "Invalid or non-serviced apartment selected");
+        if (!apartment || apartment.listingType !== "shortlet") {
+            throw new ApiError(
+                400,
+                "Only shortlet properties can be booked by date"
+            );
         }
 
         const start = new Date(`${checkInDate}T00:00:00.000Z`);
@@ -58,7 +61,7 @@ exports.createBooking = async ({ user, payload }) => {
             guestPhone: user.phone,
             checkInDate: start,
             checkOutDate: end,
-            totalPrice: days * apartment.dailyRate,
+            totalPrice: days * apartment.price,
             bookingStatus: "pending",
             paymentStatus: "unpaid"
         },

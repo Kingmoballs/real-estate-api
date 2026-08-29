@@ -28,8 +28,12 @@ exports.createProperty = async ({ user, body, files }) => {
 // Get all properties with optional filters
 exports.getAllProperties = async (query) => {
     const {
-        location,
+        listingType,
         type,
+        propertyType,
+        pricePeriod,
+        currency,
+        location,
         minPrice,
         maxPrice,
         bedrooms,
@@ -39,25 +43,56 @@ exports.getAllProperties = async (query) => {
     const filters = {};
 
     if (location) {
-        filters.location = { $regex: location, $options: "i" };
+        filters.location = {
+            $regex: location,
+            $options: "i",
+        };
     }
 
-    if (type) {
-        filters.propertyType = type;
+    // "type" is temporarily supported for older clients.
+    const requestedListingType = listingType || type;
+
+    if (requestedListingType) {
+        filters.listingType =
+            requestedListingType === "serviced"
+                ? "shortlet"
+                : requestedListingType;
+    }
+
+    if (propertyType) {
+        filters.propertyType = propertyType;
+    }
+
+    if (pricePeriod) {
+        filters.pricePeriod = pricePeriod;
+    }
+
+    if (currency) {
+        filters.currency = currency.toUpperCase();
     }
 
     if (minPrice || maxPrice) {
         filters.price = {};
-        if (minPrice) filters.price.$gte = Number(minPrice);
-        if (maxPrice) filters.price.$lte = Number(maxPrice);
+
+        if (minPrice) {
+            filters.price.$gte = Number(minPrice);
+        }
+
+        if (maxPrice) {
+            filters.price.$lte = Number(maxPrice);
+        }
     }
 
-    if (bedrooms) {
-        filters.bedrooms = { $gte: Number(bedrooms) };
+    if (bedrooms !== undefined) {
+        filters.bedrooms = {
+            $gte: Number(bedrooms),
+        };
     }
 
-    if (bathrooms) {
-        filters.bathrooms = { $gte: Number(bathrooms) };
+    if (bathrooms !== undefined) {
+        filters.bathrooms = {
+            $gte: Number(bathrooms),
+        };
     }
 
     return propertyRepository.findAll(filters);
@@ -92,12 +127,14 @@ exports.updateProperty = async ({ propertyId, user, body, files }) => {
     const editableFields = [
         "title",
         "description",
-        "price",
         "location",
+        "listingType",
+        "propertyType",
+        "price",
+        "currency",
+        "pricePeriod",
         "bedrooms",
         "bathrooms",
-        "propertyType",
-        "dailyRate",
     ];
 
     editableFields.forEach(field => {
