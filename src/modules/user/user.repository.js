@@ -15,9 +15,14 @@ exports.findById = (id) => {
     return User.findById(id);
 };
 
+// Find user by ID including refresh token
+exports.findByIdWithRefreshToken = (id) => {
+    return User.findById(id).select("+refreshToken");
+};
+
 // Find user by refresh token
 exports.findByRefreshToken = (refreshToken) => {
-    return User.findOne({ refreshToken });
+    return User.findOne({ refreshToken }).select("+refreshToken");
 };
 
 // Save user document

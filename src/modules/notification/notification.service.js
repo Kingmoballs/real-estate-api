@@ -88,33 +88,47 @@ exports.createPaymentReceiptUploadedNotification = async ({
 };
 
 // Create payment verified notification for guest
-exports.createPaymentVerifiedNotification = async (booking) => {
-    if (!booking.guest) return null;
-
-    const title = "Payment Verified";
-    const body =
-        booking.bookingStatus === "active"
-            ? "Your payment has been verified and your booking is now active."
-            : "Your payment has been verified. Your booking will activate on your check-in date.";
+exports.createPaymentVerifiedNotification = async ({
+    guestId,
+    activated
+}) => {
+    if (!guestId) {
+        throw new ApiError(
+            400,
+            "Guest ID is required for payment notification"
+        );
+    }
 
     return Notification.create({
-        user: booking.guest,
+        user: guestId,
         type: "booking",
-        title,
-        body,
+        title: "Payment Verified",
+        body: activated
+            ? "Your payment has been verified and your booking is now active."
+            : "Your payment has been verified. Your booking will activate on your check-in date."
     });
 };
 
 // Create payment receipt rejected notification for guest
 exports.createPaymentReceiptRejectedNotification = async ({
     guestId,
-    reason,
+    reason
 }) => {
+    if (!guestId) {
+        throw new ApiError(
+            400,
+            "Guest ID is required for payment notification"
+        );
+    }
+
+    const rejectionReason =
+        reason?.trim() || "Invalid or unclear receipt";
+
     return Notification.create({
         user: guestId,
         type: "booking",
         title: "Payment Receipt Rejected",
-        body: `Your payment receipt was rejected. Reason: ${reason}`,
+        body: `Your payment receipt was rejected. Reason: ${rejectionReason}`
     });
 };
 

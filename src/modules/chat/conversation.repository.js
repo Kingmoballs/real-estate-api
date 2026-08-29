@@ -1,8 +1,14 @@
 const Conversation = require("./conversation.model");
 
 // Find conversation by ID
-exports.findById = async (conversationId) => {
-  return Conversation.findById(conversationId);
+exports.findById = async (conversationId, session = null) => {
+    const query = Conversation.findById(conversationId);
+
+    if (session) {
+        query.session(session);
+    }
+
+    return query;
 };
 
 // Find conversation by property ID and participant user ID

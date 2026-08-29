@@ -23,6 +23,11 @@ exports.findByIdWithProperty = (bookingId, session) => {
         .session(session);
 };
 
+// Find bookings for a user
+exports.findByUser = (userId, session) => {
+    return Booking.find({ user: userId }).session(session);
+}
+
 // Find booking by ID
 exports.findById = (bookingId, session) => {
     return Booking.findById(bookingId).session(session);

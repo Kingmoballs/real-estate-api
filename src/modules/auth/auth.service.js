@@ -14,35 +14,34 @@ const generateToken = (userId)  => {
 
 // Register new user
 exports.register = async (payload) => {
-    const { name, email, password, phone, role } = payload;
+    const { name, email, password, phone } = payload;
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser =
-        await userRepository.findByEmail(email);
+        await userRepository.findByEmail(normalizedEmail);
 
     if (existingUser) {
-        throw new ApiError(400, "Email already in use");
+        throw new ApiError(409, "Email already in use");
     }
 
-    const user =
-        await userRepository.createUser({
-            name,
-            email,
-            password,
-            phone,
-            role,
-        });
-
-    const token = generateToken(user._id);
+    const user = await userRepository.createUser({
+        name,
+        email: normalizedEmail,
+        password,
+        phone,
+        role: "user"
+    });
 
     return {
+        message: "Registration successful",
         user: {
             id: user._id,
             name: user.name,
             email: user.email,
             phone: user.phone,
-            role: user.role,
-        },
-        token,
+            role: user.role
+        }
     };
 };
 
@@ -97,7 +96,8 @@ exports.refreshToken = async ({ refreshToken }) => {
         throw new ApiError(401, "Invalid or expired refresh token");
     }
 
-    const user = await userRepository.findById(decoded.id);
+    const user =
+        await userRepository.findByIdWithRefreshToken(decoded.id);
     if (!user) {
         throw new ApiError(404, "User not found");
     }

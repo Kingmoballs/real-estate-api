@@ -20,17 +20,19 @@ exports.sendMessage = async (req, res, next) => {
 // Get conversation messages
 exports.getConversationMessages = async (req, res, next) => {
     try {
-        const { conversationId } = req.params;
-
-        const messages = await chatService.getConversationMessages(conversationId);
+        const messages =
+            await chatService.getConversationMessages({
+                conversationId: req.params.conversationId,
+                userId: req.user.id
+            });
 
         res.status(200).json({
             success: true,
             count: messages.length,
-            data: messages,
+            data: messages
         });
     } catch (err) {
-        next(err); 
+        next(err);
     }
 };
 

@@ -128,15 +128,34 @@ exports.sendMessage = async ({ user, propertyId, conversationId, content }) => {
 
 
 // Get conversation messages
-exports.getConversationMessages = async (conversationId) => {
+exports.getConversationMessages = async ({
+    conversationId,
+    userId
+}) => {
     if (!conversationId) {
         throw new ApiError(400, "Conversation ID is required");
     }
 
-    const messages =
-        await chatRepository.findByConversationId(conversationId);
+    const conversation =
+        await conversationRepository.findById(conversationId);
 
-    return messages;
+    if (!conversation) {
+        throw new ApiError(404, "Conversation not found");
+    }
+
+    const isParticipant = conversation.participants.some(
+        participantId =>
+            participantId.toString() === userId.toString()
+    );
+
+    if (!isParticipant) {
+        throw new ApiError(
+            403,
+            "You are not authorized to view this conversation"
+        );
+    }
+
+    return chatRepository.findByConversationId(conversationId);
 };
 
 // Get inbox messages (user or agent)
@@ -167,18 +186,32 @@ exports.getInbox = async (userId) => {
 };
 
 // Mark conversation as read
-exports.markConversationAsRead = async ({ conversationId, userId }) => {
-    const conversation = await conversationRepository.findById(conversationId);
+exports.markConversationAsRead = async ({
+    conversationId,
+    userId
+}) => {
+    const conversation =
+        await conversationRepository.findById(conversationId);
 
     if (!conversation) {
         throw new ApiError(404, "Conversation not found");
     }
 
-    if (!conversation.participants.includes(userId)) {
+    const isParticipant = conversation.participants.some(
+        participantId =>
+            participantId.toString() === userId.toString()
+    );
+
+    if (!isParticipant) {
         throw new ApiError(403, "Not authorized");
     }
 
-    await chatRepository.markMessagesAsRead(conversationId, userId);
+    await chatRepository.markMessagesAsRead(
+        conversationId,
+        userId
+    );
 
-    return { message: "Messages marked as read" };
+    return {
+        message: "Messages marked as read"
+    };
 };

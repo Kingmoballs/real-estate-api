@@ -1,8 +1,11 @@
 module.exports = {
     testEnvironment: "node",
     testMatch: ["**/tests/**/*.test.js"],
-    setupFilesAfterEnv: ["<rootDir>/tests/setup.js"],
-    globalTeardown: "<rootDir>/tests/teardown.js",
+
+    moduleNameMapper: {
+        "^@/(.*)$": "<rootDir>/src/$1"
+    },
+
     testTimeout: 15000,
-    clearMocks: true,
+    clearMocks: true
 };

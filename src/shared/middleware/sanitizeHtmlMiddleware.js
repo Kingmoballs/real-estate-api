@@ -1,17 +1,41 @@
 const sanitizeHtml = require("sanitize-html");
 
-function sanitizeBody(req, res, next) {
-    if (req.body) {
-        for (const key in req.body) {
-            if (typeof req.body[key] === "string") {
-                req.body[key] = sanitizeHtml(req.body[key], {
-                    allowedTags: [],
-                    allowedAttributes: {}
-                });
+const sanitizeValue = (value) => {
+    if (typeof value === "string") {
+        return sanitizeHtml(value, {
+            allowedTags: [],
+            allowedAttributes: {}
+        });
+    }
+
+    if (Array.isArray(value)) {
+        return value.map(sanitizeValue);
+    }
+
+    if (value && typeof value === "object") {
+        for (const key of Object.keys(value)) {
+            if (
+                key === "__proto__" ||
+                key === "constructor" ||
+                key === "prototype"
+            ) {
+                delete value[key];
+                continue;
             }
+
+            value[key] = sanitizeValue(value[key]);
         }
     }
+
+    return value;
+};
+
+const sanitizeBody = (req, res, next) => {
+    if (req.body) {
+        req.body = sanitizeValue(req.body);
+    }
+
     next();
-}
+};
 
 module.exports = sanitizeBody;

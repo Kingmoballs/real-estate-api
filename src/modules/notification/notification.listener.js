@@ -60,7 +60,9 @@ eventBus.on(EVENTS.BOOKING_PAYMENT_VERIFIED, async (payload) => {
 eventBus.on(EVENTS.BOOKING_PAYMENT_REJECTED, async (payload) => {
     try {
         const notification =
-            await notificationService.createPaymentRejectedNotification(payload);
+            await notificationService.createPaymentReceiptRejectedNotification(
+                payload
+            );
 
         await notificationService.emitBookingNotification(notification);
     } catch (err) {

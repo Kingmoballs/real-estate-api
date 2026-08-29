@@ -26,7 +26,9 @@ cron.schedule("0 * * * *", async () => {
         // Expire unpaid bookings
         /////////////////////////
         const unpaidBookings = await Booking.find({
-            bookingStatus: ["pending", "approved"],
+            bookingStatus: {
+                $in: ["pending", "approved"]
+            },
             paymentStatus: "unpaid",
             createdAt: { $lte: expiryDate }
         });

@@ -190,7 +190,8 @@ exports.rejectBooking = async ({ bookingId, agent, reason }) => {
             bookingId: booking._id,
             guestId: booking.guest,
             agentId: agent._id,
-            propertyId: booking.property._id
+            propertyId: booking.property._id,
+            reason: rejectionReason
         });
 
         return booking;
@@ -383,4 +384,24 @@ exports.rejectPaymentReceipt = async ({
     }); 
 
     return updatedBooking;
+};
+
+// Get bookings for a user
+exports.getUserBookings = async ({ user, page = 1, limit = 10 }) => {
+    const session = await mongoose.startSession();  
+    try {
+        session.startTransaction(); 
+        const bookings = await bookingRepository.findByUser(
+            user._id,
+            session,
+            { page, limit }
+        );
+        await session.commitTransaction();
+        session.endSession();
+        return bookings;
+    } catch (err) {
+        await session.abortTransaction().catch(() => {});   
+        session.endSession();
+        throw err;
+    }
 };
