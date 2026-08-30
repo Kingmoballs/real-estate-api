@@ -252,3 +252,49 @@ exports.archiveProperty = async (
         next(error);
     }
 };
+
+exports.updatePropertyStatus = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService
+                .updatePropertyStatus({
+                    propertyId: req.params.id,
+                    user: req.user,
+                    status: req.body.status,
+                });
+
+        res.status(200).json({
+            message:
+                `Property status changed to ${property.listingStatus}`,
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.relistProperty = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const property =
+            await propertyService.relistProperty({
+                propertyId: req.params.id,
+                user: req.user,
+            });
+
+        res.status(200).json({
+            message:
+                "Property submitted for relisting review",
+            property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};

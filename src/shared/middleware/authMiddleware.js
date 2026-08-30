@@ -5,18 +5,17 @@ const protect = async (req, res, next) => {
     try {
         let token;
 
-        if (req.cookies?.token) {
-            token = req.cookies.token;
-        }
-
         const authorizationHeader =
             req.headers.authorization;
 
         if (
-            !token &&
             authorizationHeader?.startsWith("Bearer ")
         ) {
             token = authorizationHeader.slice(7).trim();
+        }
+
+        if (!token && req.cookies?.token) {
+            token = req.cookies.token;
         }
 
         if (!token) {
@@ -36,6 +35,26 @@ const protect = async (req, res, next) => {
         if (!user) {
             return res.status(401).json({
                 message: "User no longer exists",
+            });
+        }
+
+        if (
+            user.accountStatus &&
+            user.accountStatus !== "active"
+        ) {
+            return res.status(403).json({
+                message: `This account is ${user.accountStatus}`,
+            });
+        }
+
+        if (
+            user.passwordChangedAt &&
+            decoded.iat * 1000 <
+                user.passwordChangedAt.getTime()
+        ) {
+            return res.status(401).json({
+                message:
+                    "Password changed after this token was issued. Please log in again",
             });
         }
 

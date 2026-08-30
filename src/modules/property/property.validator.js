@@ -210,6 +210,17 @@ const rejectPropertySchema = Joi.object({
         .required(),
 });
 
+const updatePropertyStatusSchema = Joi.object({
+    status: Joi.string()
+        .valid(
+            "published",
+            "unavailable",
+            "rented",
+            "sold"
+        )
+        .required(),
+});
+
 module.exports = {
     createPropertySchema,
     updatePropertySchema,
@@ -217,4 +228,5 @@ module.exports = {
     ownedPropertyQuerySchema,
     adminPropertyQuerySchema,
     rejectPropertySchema,
+    updatePropertyStatusSchema
 };

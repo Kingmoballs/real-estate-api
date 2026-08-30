@@ -38,7 +38,7 @@ exports.getUnreadCount = async ({ userId }) => {
 
 // Create booking notification for agent
 exports.createBookingNotification = async (
-    { agentId, guestName },
+    { bookingId, agentId, guestName },
     session
 ) => {
     return Notification.create(
@@ -46,6 +46,7 @@ exports.createBookingNotification = async (
             {
                 user: agentId,
                 type: "booking",
+                booking: bookingId,
                 title: "New Booking Request",
                 body: `${guestName} requested to book your apartment.`
             }
@@ -55,20 +56,22 @@ exports.createBookingNotification = async (
 };
 
 // Create booking approval notification for guest
-exports.createBookingApprovalNotification = async ({ guestId }) => {
+exports.createBookingApprovalNotification = async ({ bookingId, guestId }) => {
     return Notification.create({
         user: guestId,
         type: "booking",
+        booking: bookingId,
         title: "Booking Approved",
         body: "Your booking has been approved. Please upload payment receipt to continue"
     });
 };
 
 // Create booking rejection notification for guest
-exports.createBookingRejectionNotification = async ({ guestId, reason }) => {
+exports.createBookingRejectionNotification = async ({ bookingId, guestId, reason }) => {
     return Notification.create({
         user: guestId,
         type: "booking",
+        booking: bookingId,
         title: "Booking Rejected",
         body: `Your booking request was rejected. Reason: ${reason}`
     });
@@ -76,12 +79,14 @@ exports.createBookingRejectionNotification = async ({ guestId, reason }) => {
 
 // Create payment receipt uploaded notification for agent
 exports.createPaymentReceiptUploadedNotification = async ({
+    bookingId,
     agentId,
     guestName
 }) => {
     return Notification.create({
         user: agentId,
         type: "booking",
+        booking: bookingId,
         title: "Payment Receipt Uploaded",
         body: `${guestName} uploaded a payment receipt for a booking.`
     });
@@ -89,6 +94,7 @@ exports.createPaymentReceiptUploadedNotification = async ({
 
 // Create payment verified notification for guest
 exports.createPaymentVerifiedNotification = async ({
+    bookingId,
     guestId,
     activated
 }) => {
@@ -102,6 +108,7 @@ exports.createPaymentVerifiedNotification = async ({
     return Notification.create({
         user: guestId,
         type: "booking",
+        booking: bookingId,
         title: "Payment Verified",
         body: activated
             ? "Your payment has been verified and your booking is now active."
@@ -111,6 +118,7 @@ exports.createPaymentVerifiedNotification = async ({
 
 // Create payment receipt rejected notification for guest
 exports.createPaymentReceiptRejectedNotification = async ({
+    bookingId,
     guestId,
     reason
 }) => {
@@ -127,6 +135,7 @@ exports.createPaymentReceiptRejectedNotification = async ({
     return Notification.create({
         user: guestId,
         type: "booking",
+        booking: bookingId,
         title: "Payment Receipt Rejected",
         body: `Your payment receipt was rejected. Reason: ${rejectionReason}`
     });
@@ -139,6 +148,7 @@ exports.emitBookingNotification = (notification) => {
     io.to(notification.user.toString()).emit("notification", {
         id: notification._id,
         type: notification.type,
+        bookingId: notification.booking,
         title: notification.title,
         body: notification.body
     });
@@ -175,5 +185,23 @@ exports.emitMessageNotification = (notification) => {
         type: notification.type,
         conversationId: notification.conversation,
         message: "New message received",
+    });
+};
+
+exports.createBookingCancellationNotification = async ({
+    bookingId,
+    recipientId,
+    cancelledByGuest,
+    guestName,
+    reason,
+}) => {
+    return Notification.create({
+        user: recipientId,
+        type: "booking",
+        booking: bookingId,
+        title: "Booking Cancelled",
+        body: cancelledByGuest
+            ? `${guestName} cancelled a booking. Reason: ${reason}`
+            : `Your booking was cancelled. Reason: ${reason}`,
     });
 };

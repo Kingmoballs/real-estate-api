@@ -6,7 +6,8 @@ const cookieParser = require("cookie-parser");
 const corsMiddleware = require("@/shared/middleware/corsMiddleware");
 const sanitizeBody = require("@/shared/middleware/sanitizeHtmlMiddleware");
 const httpLogger = require("@/shared/middleware/httpLogger");
-const { apiLimiter, authLimiter } = require("./shared/middleware/rateLimit");
+const { apiLimiter } = require("./shared/middleware/rateLimit");
+const csrfProtection = require("@/shared/middleware/csrfMiddleware");
 const errorHandler = require("@/shared/middleware/errorMiddleware");
 
 
@@ -58,6 +59,7 @@ app.use(
 );
 
 app.use(cookieParser());
+app.use(csrfProtection);
 app.use(sanitizeBody);
 app.use(hpp());
 app.use(httpLogger);
@@ -65,7 +67,6 @@ app.use(httpLogger);
 /////////////////
 // Rate Limiting
 /////////////////
-app.use("/api/auth", authLimiter);
 app.use("/api", apiLimiter);
 
 /////////

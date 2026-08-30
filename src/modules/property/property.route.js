@@ -13,6 +13,8 @@ const {
     approveProperty,
     rejectProperty,
     archiveProperty,
+    updatePropertyStatus,
+    relistProperty,
 } = require("./property.controller");
 
 const {
@@ -27,6 +29,7 @@ const {
     ownedPropertyQuerySchema,
     adminPropertyQuerySchema,
     rejectPropertySchema,
+    updatePropertyStatusSchema,
 } = require("./property.validator");
 
 const validate = require(
@@ -128,6 +131,21 @@ router.patch(
     protect,
     agentOnly,
     submitPropertyForReview
+);
+
+router.patch(
+    "/:id/status",
+    protect,
+    agentOnly,
+    validate(updatePropertyStatusSchema),
+    updatePropertyStatus
+);
+
+router.patch(
+    "/:id/relist",
+    protect,
+    agentOnly,
+    relistProperty
 );
 
 router.delete(

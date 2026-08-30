@@ -1,4 +1,8 @@
 module.exports = {
+  PENDING_BOOKING_TIMEOUT_HOURS:
+    Number(process.env.PENDING_BOOKING_TIMEOUT_HOURS) || 48,
+  PAYMENT_TIMEOUT_HOURS:
+    Number(process.env.PAYMENT_TIMEOUT_HOURS) || 24,
   REUPLOAD_TIMEOUT_HOURS:
     Number(process.env.REUPLOAD_TIMEOUT_HOURS) || 24,
 };

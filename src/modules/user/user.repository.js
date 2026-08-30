@@ -5,9 +5,11 @@ exports.findByEmail = (email) => {
     return User.findOne({ email });
 }
 
-// Find user by email including password and refresh token
+// Find user by email including authentication secrets
 exports.findByEmailWithPassword = (email) => {
-    return User.findOne({ email }).select("+password +refreshToken");
+    return User.findOne({ email }).select(
+        "+password +refreshTokenHash"
+    );
 };
 
 // Find user by ID
@@ -21,14 +23,24 @@ exports.findById = (id, session = null) => {
     return query;
 };
 
-// Find user by ID including refresh token
+// Find user by ID including the stored refresh-token hash
 exports.findByIdWithRefreshToken = (id) => {
-    return User.findById(id).select("+refreshToken");
+    return User.findById(id).select("+refreshTokenHash");
 };
 
-// Find user by refresh token
-exports.findByRefreshToken = (refreshToken) => {
-    return User.findOne({ refreshToken }).select("+refreshToken");
+exports.findByIdWithPassword = (id) => {
+    return User.findById(id).select(
+        "+password +refreshTokenHash"
+    );
+};
+
+exports.findByPasswordResetToken = (tokenHash) => {
+    return User.findOne({
+        passwordResetTokenHash: tokenHash,
+        passwordResetExpiresAt: { $gt: new Date() }
+    }).select(
+        "+passwordResetTokenHash +passwordResetExpiresAt +refreshTokenHash"
+    );
 };
 
 // Save user document

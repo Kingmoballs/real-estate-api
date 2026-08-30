@@ -34,14 +34,36 @@ const userSchema = new mongoose.Schema(
             default: "user"
         },
 
+        accountStatus: {
+            type: String,
+            enum: ["active", "suspended", "deactivated"],
+            default: "active",
+            index: true
+        },
+
         lastSeen: {
             type: Date,
             default: null
         },
 
-        refreshToken: {
+        refreshTokenHash: {
             type: String,
             select: false
+        },
+
+        passwordResetTokenHash: {
+            type: String,
+            select: false
+        },
+
+        passwordResetExpiresAt: {
+            type: Date,
+            select: false
+        },
+
+        passwordChangedAt: {
+            type: Date,
+            default: null
         }
     },
     {

@@ -1,5 +1,84 @@
 const BookingService = require("./booking.service");
 
+exports.checkAvailability = async (req, res, next) => {
+    try {
+        const availability =
+            await BookingService.checkAvailability({
+                propertyId: req.params.propertyId,
+                query: req.query,
+            });
+
+        res.status(200).json(availability);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getAvailabilityCalendar = async (req, res, next) => {
+    try {
+        const calendar =
+            await BookingService.getAvailabilityCalendar({
+                propertyId: req.params.propertyId,
+                query: req.query,
+            });
+
+        res.status(200).json(calendar);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getMyBookings = async (req, res, next) => {
+    try {
+        const result = await BookingService.getUserBookings({
+            user: req.user,
+            query: req.query,
+        });
+
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getAgentBookings = async (req, res, next) => {
+    try {
+        const result = await BookingService.getAgentBookings({
+            agent: req.user,
+            query: req.query,
+        });
+
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getAdminBookings = async (req, res, next) => {
+    try {
+        const result = await BookingService.getAdminBookings({
+            query: req.query,
+        });
+
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getBookingById = async (req, res, next) => {
+    try {
+        const booking = await BookingService.getBookingById({
+            bookingId: req.params.bookingId,
+            user: req.user,
+        });
+
+        res.status(200).json({ booking });
+    } catch (err) {
+        next(err);
+    }
+};
+
 ////////////////////////
 // Create a new booking
 ////////////////////////
@@ -60,6 +139,23 @@ exports.rejectBooking = async (req, res, next) => {
         next(err)
     }
 }
+
+exports.cancelBooking = async (req, res, next) => {
+    try {
+        const booking = await BookingService.cancelBooking({
+            bookingId: req.params.bookingId,
+            user: req.user,
+            reason: req.body.reason,
+        });
+
+        res.status(200).json({
+            message: "Booking cancelled successfully",
+            booking,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
 
 /////////////////////////
 // Upload payment receipt

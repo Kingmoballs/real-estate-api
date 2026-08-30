@@ -1,68 +1,100 @@
 const chatService = require("./chat.service");
 
-// Send a message
 exports.sendMessage = async (req, res, next) => {
     try {
-        const message = await chatService.sendMessage({
+        const result = await chatService.sendMessage({
             user: req.user,
             propertyId: req.body.propertyId,
             conversationId: req.body.conversationId,
+            inquiryType: req.body.inquiryType,
             content: req.body.content,
         });
 
-        res.status(201).json(message);
-    } catch (err) {
-        next(err);
+        res.status(201).json({
+            message: "Message sent successfully",
+            conversationId: result.conversationId,
+            data: result.message,
+        });
+    } catch (error) {
+        next(error);
     }
 };
 
-
-// Get conversation messages
-exports.getConversationMessages = async (req, res, next) => {
+exports.getConversationMessages = async (
+    req,
+    res,
+    next
+) => {
     try {
-        const messages =
+        const result =
             await chatService.getConversationMessages({
-                conversationId: req.params.conversationId,
-                userId: req.user.id
+                conversationId:
+                    req.params.conversationId,
+                userId: req.user._id,
+                page: req.query.page,
+                limit: req.query.limit,
             });
 
-        res.status(200).json({
-            success: true,
-            count: messages.length,
-            data: messages
-        });
-    } catch (err) {
-        next(err);
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
     }
 };
 
-// Get inbox messages (user or agent)
 exports.getInbox = async (req, res, next) => {
     try {
-        const userId = req.user.id;
-
-        const inbox = await chatService.getInbox(userId);
-
-        res.status(200).json({
-            success: true,
-            count: inbox.length,
-            data: inbox,
-        });
-    } catch (err) {
-        next(err);
-    }
-};
-
-// Mark message as read
-exports.markConversationAsRead = async (req, res,next) => {
-    try {
-        const result = await chatService.markConversationAsRead({
-            conversationId: req.params.conversationId,
-            userId: req.user.id,
+        const result = await chatService.getInbox({
+            userId: req.user._id,
+            status: req.query.status,
+            page: req.query.page,
+            limit: req.query.limit,
         });
 
         res.status(200).json(result);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.markConversationAsRead = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const result =
+            await chatService.markConversationAsRead({
+                conversationId:
+                    req.params.conversationId,
+                userId: req.user._id,
+            });
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.updateConversationStatus = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const conversation =
+            await chatService.updateConversationStatus({
+                conversationId:
+                    req.params.conversationId,
+                user: req.user,
+                status: req.body.status,
+            });
+
+        res.status(200).json({
+            message:
+                `Conversation ${conversation.status} successfully`,
+            conversation,
+        });
+    } catch (error) {
+        next(error);
     }
 };

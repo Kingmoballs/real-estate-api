@@ -1,7 +1,6 @@
 const Conversation = require("./conversation.model");
 
-// Find conversation by ID
-exports.findById = async (conversationId, session = null) => {
+exports.findById = (conversationId, session = null) => {
     const query = Conversation.findById(conversationId);
 
     if (session) {
@@ -11,26 +10,51 @@ exports.findById = async (conversationId, session = null) => {
     return query;
 };
 
-// Find conversation by property ID and participant user ID
-exports.findByPropertyAndParticipant = async (
+exports.findByIdWithDetails = (conversationId) => {
+    return Conversation.findById(conversationId)
+        .populate(
+            "property",
+            "title images listingType propertyType listingStatus price currency pricePeriod"
+        )
+        .populate("agent", "name email phone")
+        .populate("customer", "name email phone")
+        .populate("closedBy", "name role")
+        .populate({
+            path: "lastMessage",
+            populate: {
+                path: "sender",
+                select: "name role",
+            },
+        });
+};
+
+exports.findByPropertyAndCustomer = (
     propertyId,
-    userId,
-    session
+    customerId,
+    session = null
 ) => {
-    return Conversation.findOne({
+    const query = Conversation.findOne({
         property: propertyId,
-        participants: { $in: [userId] },
-    }).session(session);
+        customer: customerId,
+    });
+
+    if (session) {
+        query.session(session);
+    }
+
+    return query;
 };
 
-// Create new conversation
 exports.create = async (data, session) => {
-    return Conversation.create([data], { session })
-        .then(res => res[0]);
+    const [conversation] = await Conversation.create(
+        [data],
+        { session }
+    );
+
+    return conversation;
 };
 
-// Update last message in conversation
-exports.updateLastMessage = async (
+exports.updateLastMessage = (
     conversationId,
     messageId,
     session
@@ -42,12 +66,64 @@ exports.updateLastMessage = async (
     );
 };
 
-// Find user inbox conversations
-exports.findUserInbox = async (userId) => {
-    return Conversation.find({
+exports.findUserInbox = async ({
+    userId,
+    status,
+    page,
+    limit,
+}) => {
+    const filters = {
         participants: userId,
-    })
-        .populate("property", "title")
-        .populate("lastMessage")
-        .sort({ updatedAt: -1 });
+    };
+
+    if (status) {
+        filters.status = status;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [conversations, totalItems] =
+        await Promise.all([
+            Conversation.find(filters)
+                .populate(
+                    "property",
+                    "title images listingType propertyType listingStatus price currency pricePeriod"
+                )
+                .populate("agent", "name email phone")
+                .populate("customer", "name email phone")
+                .populate({
+                    path: "lastMessage",
+                    populate: {
+                        path: "sender",
+                        select: "name role",
+                    },
+                })
+                .sort({ updatedAt: -1 })
+                .skip(skip)
+                .limit(limit),
+
+            Conversation.countDocuments(filters),
+        ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+        conversations,
+        pagination: {
+            currentPage: page,
+            itemsPerPage: limit,
+            totalItems,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+        },
+    };
+};
+
+exports.save = (conversation, session = null) => {
+    if (session) {
+        return conversation.save({ session });
+    }
+
+    return conversation.save();
 };

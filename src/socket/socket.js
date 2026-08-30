@@ -3,13 +3,24 @@ const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
 const User = require("@/modules/user/user.model");
 const { onlineUsers } = require("@/shared/utils/onlineUsers");
+const { isAllowedOrigin } = require("@/config/clientOrigins");
 
 let io; 
 
 const initSocket = (httpServer) => {
     io = new Server(httpServer, {
         cors: {
-            origin: process.env.CLIENT_URL || "*",
+            origin(origin, callback) {
+                if (isAllowedOrigin(origin)) {
+                    return callback(null, true);
+                }
+
+                return callback(
+                    new Error(
+                        `Origin ${origin} is not allowed by CORS`
+                    )
+                );
+            },
             credentials: true
         }
     });
@@ -18,13 +29,13 @@ const initSocket = (httpServer) => {
         try {
             let token;
 
-            if (socket.handshake.headers.cookie) {
-                const cookies = cookie.parse(socket.handshake.headers.cookie);
-                token = cookies.token;
+            if (socket.handshake.auth?.token) {
+                token = socket.handshake.auth.token;
             }
 
-            if (!token && socket.handshake.auth?.token) {
-                token = socket.handshake.auth.token;
+            if (!token && socket.handshake.headers.cookie) {
+                const cookies = cookie.parse(socket.handshake.headers.cookie);
+                token = cookies.token;
             }
 
             if (!token) {
@@ -36,6 +47,23 @@ const initSocket = (httpServer) => {
 
             if (!user) {
                 return next(new Error("User not found"));
+            }
+
+            if (
+                user.accountStatus &&
+                user.accountStatus !== "active"
+            ) {
+                return next(new Error("Account is not active"));
+            }
+
+            if (
+                user.passwordChangedAt &&
+                decoded.iat * 1000 <
+                    user.passwordChangedAt.getTime()
+            ) {
+                return next(
+                    new Error("Authentication token is no longer valid")
+                );
             }
 
             socket.user = user;

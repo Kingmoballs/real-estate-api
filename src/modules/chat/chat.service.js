@@ -6,204 +6,297 @@ const propertyRepository = require("../property/property.repository");
 const eventBus = require("@/shared/events/eventBus");
 const EVENTS = require("@/shared/events/eventRegistry");
 
-// Send a message
-exports.sendMessage = async ({ user, propertyId, conversationId, content }) => {
-    const session = await mongoose.startSession();
-
-    try {
-        if (!content) {
-            throw new ApiError(400, "Message content is required");
-        }
-
-        if (!propertyId && !conversationId) {
-            throw new ApiError(
-                400,
-                "Either propertyId or conversationId is required"
-            );
-        }
-
-        session.startTransaction();
-
-        let conversation;
-
-        // Replying to existing conversation
-        if (conversationId) {
-            conversation = await conversationRepository.findById(
-                conversationId,
-                session
-            );
-
-            if (!conversation) {
-                throw new ApiError(404, "Conversation not found");
-            }
-
-            // Ensure user is part of conversation
-            const isParticipant = conversation.participants.some(
-                id => id.toString() === user.id.toString()
-            );
-
-            if (!isParticipant) {
-                throw new ApiError(403, "Not authorized to send message");
-            }
-        }
-
-        // New message via property
-        if (!conversation && propertyId) {
-            const property = await propertyRepository.findById(
-                propertyId,
-                session
-            );
-
-            if (!property) {
-                throw new ApiError(404, "Property not found");
-            }
-
-            conversation =
-                await conversationRepository.findByPropertyAndParticipant(
-                    property._id,
-                    user.id,
-                    session
-                );
-
-            if (!conversation) {
-                conversation = await conversationRepository.create(
-                    {
-                        property: property._id,
-                        agent: property.postedBy,
-                        participants: [user.id, property.postedBy],
-                    },
-                    session
-                );
-            }
-        }
-
-        // Create message
-        const message = await chatRepository.createMessage(
-            {
-                conversation: conversation._id,
-                sender: user.id,
-                content,
-                readBy: [user.id],
-            },
-            session
-        );
-
-        await conversationRepository.updateLastMessage(
-            conversation._id,
-            message._id,
-            session
-        );
-
-        // Determine recipient
-        const recipient =
-            user.id.toString() === conversation.agent.toString()
-                ? conversation.participants.find(
-                      id => id.toString() !== user.id.toString()
-                  )
-                : conversation.agent;
-
-        await session.commitTransaction();
-        session.endSession();
-
-        //  Emit domain event for real-time delivery and notifications
-        eventBus.emit(EVENTS.MESSAGE_SENT, {
-            recipientId: recipient,
-            conversationId: conversation._id,
-            messageId: message._id,
-            markDelivered: async () => {
-                await chatRepository.markDelivered(message._id, recipient);
-            }
-        });
-
-        return message;
-
-    } catch (err) {
-        if (session.inTransaction()) {
-            await session.abortTransaction();
-        }
-        session.endSession();
-        throw err;
+const validateObjectId = (id, label) => {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, `Invalid ${label}`);
     }
 };
 
-
-// Get conversation messages
-exports.getConversationMessages = async ({
-    conversationId,
-    userId
-}) => {
-    if (!conversationId) {
-        throw new ApiError(400, "Conversation ID is required");
-    }
-
-    const conversation =
-        await conversationRepository.findById(conversationId);
-
-    if (!conversation) {
-        throw new ApiError(404, "Conversation not found");
-    }
-
-    const isParticipant = conversation.participants.some(
-        participantId =>
+const isParticipant = (conversation, userId) => {
+    return conversation.participants.some(
+        (participantId) =>
             participantId.toString() === userId.toString()
     );
+};
 
-    if (!isParticipant) {
+exports.sendMessage = async ({
+    user,
+    propertyId,
+    conversationId,
+    inquiryType = "general",
+    content,
+}) => {
+    if (propertyId) {
+        validateObjectId(propertyId, "property ID");
+    }
+
+    if (conversationId) {
+        validateObjectId(
+            conversationId,
+            "conversation ID"
+        );
+    }
+
+    if (user.role === "admin" && propertyId) {
+        throw new ApiError(
+            403,
+            "Platform administrators cannot start property inquiries"
+        );
+    }
+
+    const session = await mongoose.startSession();
+
+    let conversation;
+    let message;
+    let recipientId;
+
+    try {
+        await session.withTransaction(async () => {
+            if (conversationId) {
+                conversation =
+                    await conversationRepository.findById(
+                        conversationId,
+                        session
+                    );
+
+                if (!conversation) {
+                    throw new ApiError(
+                        404,
+                        "Conversation not found"
+                    );
+                }
+
+                if (
+                    !isParticipant(
+                        conversation,
+                        user._id
+                    )
+                ) {
+                    throw new ApiError(
+                        403,
+                        "You are not a participant in this conversation"
+                    );
+                }
+            } else {
+                const property =
+                    await propertyRepository.findById(
+                        propertyId,
+                        session
+                    );
+
+                if (!property) {
+                    throw new ApiError(
+                        404,
+                        "Property not found"
+                    );
+                }
+
+                if (
+                    property.listingStatus !==
+                    "published"
+                ) {
+                    throw new ApiError(
+                        409,
+                        "Inquiries can only be started for published properties"
+                    );
+                }
+
+                if (
+                    property.postedBy.toString() ===
+                    user._id.toString()
+                ) {
+                    throw new ApiError(
+                        409,
+                        "You cannot send an inquiry about your own property"
+                    );
+                }
+
+                conversation =
+                    await conversationRepository
+                        .findByPropertyAndCustomer(
+                            property._id,
+                            user._id,
+                            session
+                        );
+
+                if (!conversation) {
+                    conversation =
+                        await conversationRepository.create(
+                            {
+                                property: property._id,
+                                agent: property.postedBy,
+                                customer: user._id,
+                                participants: [
+                                    user._id,
+                                    property.postedBy,
+                                ],
+                                inquiryType,
+                                status: "open",
+                            },
+                            session
+                        );
+                }
+            }
+
+            if (conversation.status === "closed") {
+                throw new ApiError(
+                    409,
+                    "This property inquiry is closed"
+                );
+            }
+
+            message = await chatRepository.createMessage(
+                {
+                    conversation: conversation._id,
+                    sender: user._id,
+                    content,
+                    readBy: [user._id],
+                },
+                session
+            );
+
+            await conversationRepository.updateLastMessage(
+                conversation._id,
+                message._id,
+                session
+            );
+
+            recipientId = conversation.participants.find(
+                (participantId) =>
+                    participantId.toString() !==
+                    user._id.toString()
+            );
+
+            if (!recipientId) {
+                throw new ApiError(
+                    500,
+                    "Conversation recipient could not be determined"
+                );
+            }
+        });
+
+        eventBus.emit(EVENTS.MESSAGE_SENT, {
+            recipientId,
+            conversationId: conversation._id,
+            messageId: message._id,
+            markDelivered: async () => {
+                await chatRepository.markDelivered(
+                    message._id,
+                    recipientId
+                );
+            },
+        });
+
+        return {
+            conversationId: conversation._id,
+            message,
+        };
+    } finally {
+        await session.endSession();
+    }
+};
+
+exports.getConversationMessages = async ({
+    conversationId,
+    userId,
+    page = 1,
+    limit = 50,
+}) => {
+    validateObjectId(
+        conversationId,
+        "conversation ID"
+    );
+
+    const conversation =
+        await conversationRepository.findById(
+            conversationId
+        );
+
+    if (!conversation) {
+        throw new ApiError(
+            404,
+            "Conversation not found"
+        );
+    }
+
+    if (!isParticipant(conversation, userId)) {
         throw new ApiError(
             403,
             "You are not authorized to view this conversation"
         );
     }
 
-    return chatRepository.findByConversationId(conversationId);
+    return chatRepository.findByConversationId({
+        conversationId,
+        page: Number(page),
+        limit: Number(limit),
+    });
 };
 
-// Get inbox messages (user or agent)
-exports.getInbox = async (userId) => {
-    if (!userId) {
-        throw new ApiError(401, "Unauthorized");
-    }
+exports.getInbox = async ({
+    userId,
+    status,
+    page = 1,
+    limit = 20,
+}) => {
+    const result =
+        await conversationRepository.findUserInbox({
+            userId,
+            status,
+            page: Number(page),
+            limit: Number(limit),
+        });
 
-    const conversations =
-        await conversationRepository.findUserInbox(userId);
+    const conversations = await Promise.all(
+        result.conversations.map(
+            async (conversation) => {
+                const unreadCount =
+                    await chatRepository
+                        .countUnreadMessages(
+                            conversation._id,
+                            userId
+                        );
 
-    const inboxWithUnread = await Promise.all(
-        conversations.map(async (conversation) => {
-            const unreadCount =
-                await chatRepository.countUnreadMessages(
-                    conversation._id,
-                    userId
-                );
-
-            return {
-                ...conversation.toObject(),
-                unreadCount,
-            };
-        })
+                return {
+                    ...conversation.toObject(),
+                    unreadCount,
+                };
+            }
+        )
     );
 
-    return inboxWithUnread;
+    return {
+        conversations,
+        pagination: result.pagination,
+    };
 };
 
-// Mark conversation as read
 exports.markConversationAsRead = async ({
     conversationId,
-    userId
+    userId,
 }) => {
-    const conversation =
-        await conversationRepository.findById(conversationId);
-
-    if (!conversation) {
-        throw new ApiError(404, "Conversation not found");
-    }
-
-    const isParticipant = conversation.participants.some(
-        participantId =>
-            participantId.toString() === userId.toString()
+    validateObjectId(
+        conversationId,
+        "conversation ID"
     );
 
-    if (!isParticipant) {
-        throw new ApiError(403, "Not authorized");
+    const conversation =
+        await conversationRepository.findById(
+            conversationId
+        );
+
+    if (!conversation) {
+        throw new ApiError(
+            404,
+            "Conversation not found"
+        );
+    }
+
+    if (!isParticipant(conversation, userId)) {
+        throw new ApiError(
+            403,
+            "You are not authorized to update this conversation"
+        );
     }
 
     await chatRepository.markMessagesAsRead(
@@ -212,6 +305,61 @@ exports.markConversationAsRead = async ({
     );
 
     return {
-        message: "Messages marked as read"
+        message: "Conversation marked as read",
     };
+};
+
+exports.updateConversationStatus = async ({
+    conversationId,
+    user,
+    status,
+}) => {
+    validateObjectId(
+        conversationId,
+        "conversation ID"
+    );
+
+    const conversation =
+        await conversationRepository.findById(
+            conversationId
+        );
+
+    if (!conversation) {
+        throw new ApiError(
+            404,
+            "Conversation not found"
+        );
+    }
+
+    if (
+        conversation.agent.toString() !==
+        user._id.toString()
+    ) {
+        throw new ApiError(
+            403,
+            "Only the property owner can manage this inquiry"
+        );
+    }
+
+    if (conversation.status === status) {
+        throw new ApiError(
+            409,
+            `Conversation is already ${status}`
+        );
+    }
+
+    conversation.status = status;
+
+    if (status === "closed") {
+        conversation.closedAt = new Date();
+        conversation.closedBy = user._id;
+    } else {
+        conversation.closedAt = null;
+        conversation.closedBy = null;
+    }
+
+    await conversationRepository.save(conversation);
+
+    return conversationRepository
+        .findByIdWithDetails(conversationId);
 };

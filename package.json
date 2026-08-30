@@ -10,7 +10,8 @@
     "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "seed:admin": "node scripts/seedAdmin.js"
+    "seed:admin": "node scripts/seedAdmin.js",
+    "migrate:auth-security": "node scripts/migrateAuthSecurity.js"
   },
   "keywords": [],
   "author": "Mobolaji Samuel",

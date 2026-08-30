@@ -139,6 +139,25 @@ const propertySchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        unavailableAt: {
+            type: Date,
+            default: null,
+        },
+
+        rentedAt: {
+            type: Date,
+            default: null,
+        },
+
+        soldAt: {
+            type: Date,
+            default: null,
+        },
+
+        statusChangedAt: {
+            type: Date,
+            default: Date.now,
+        },
 
         agentName: {
             type: String,

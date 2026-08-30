@@ -89,3 +89,16 @@ eventBus.on(EVENTS.MESSAGE_SENT, async (payload) => {
         console.error("Message notification failed:", err.message);
     }
 });
+
+eventBus.on(EVENTS.BOOKING_CANCELLED, async (payload) => {
+    try {
+        const notification =
+            await notificationService.createBookingCancellationNotification(
+                payload
+            );
+
+        await notificationService.emitBookingNotification(notification);
+    } catch (err) {
+        console.error("Cancellation notification failed:", err.message);
+    }
+});

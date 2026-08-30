@@ -120,3 +120,10 @@ exports.findByAgent = (
         },
     }).select(fields.join(" "));
 };
+
+// Booking history must remain visible even after a property is archived.
+exports.findIdsByAgent = (agentId) => {
+    return Property.find({
+        postedBy: agentId,
+    }).select("_id");
+};

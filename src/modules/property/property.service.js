@@ -4,9 +4,9 @@ const propertyRepository = require(
     "./property.repository"
 );
 
-const {
-    cloudinary,
-} = require("@/shared/middleware/uploadFactory");
+const cloudinary = require(
+    "@/shared/utils/cloudinary"
+);
 
 const ApiError = require(
     "@/shared/utils/ApiError"
@@ -46,6 +46,29 @@ const getSort = (sort) => {
     };
 
     return sortOptions[sort] || sortOptions.newest;
+};
+
+const PROPERTY_STATUS_TRANSITIONS = {
+    shortlet: {
+        published: ["unavailable"],
+        unavailable: ["published"],
+    },
+
+    rent: {
+        published: [
+            "unavailable",
+            "rented",
+        ],
+        unavailable: ["published"],
+    },
+
+    sale: {
+        published: [
+            "unavailable",
+            "sold",
+        ],
+        unavailable: ["published"],
+    },
 };
 
 exports.createProperty = async ({
@@ -372,11 +395,16 @@ exports.updateProperty = async ({
     }
 
     /*
-     * Editing a published listing removes it from
-     * public view until an admin approves it again.
-     */
+    * Published and temporarily unavailable listings
+    * have previously passed admin review.
+    *
+    * If the agent changes their information, they
+    * must pass admin review again.
+    */
     if (
-        property.listingStatus === "published"
+        ["published", "unavailable"].includes(
+            property.listingStatus
+        )
     ) {
         property.listingStatus =
             "pendingReview";
@@ -388,6 +416,8 @@ exports.updateProperty = async ({
         property.reviewedBy = null;
         property.rejectionReason = null;
         property.publishedAt = null;
+        property.unavailableAt = null;
+        property.statusChangedAt = new Date();
     }
 
     const updatedProperty =
@@ -447,6 +477,7 @@ exports.submitPropertyForReview = async ({
 
     property.listingStatus = "pendingReview";
     property.submittedForReviewAt = new Date();
+    property.statusChangedAt = new Date();
     property.reviewedAt = null;
     property.reviewedBy = null;
     property.rejectionReason = null;
@@ -488,6 +519,11 @@ exports.approveProperty = async ({
     property.reviewedBy = admin._id;
     property.rejectionReason = null;
     property.publishedAt = new Date();
+    property.statusChangedAt = new Date();
+
+    property.unavailableAt = null;
+    property.rentedAt = null;
+    property.soldAt = null;
 
     await propertyRepository.save(property);
 
@@ -529,6 +565,7 @@ exports.rejectProperty = async ({
     property.reviewedBy = admin._id;
     property.rejectionReason = reason.trim();
     property.publishedAt = null;
+    property.statusChangedAt = new Date();
 
     await propertyRepository.save(property);
 
@@ -575,6 +612,184 @@ exports.archiveProperty = async ({
 
     property.listingStatus = "archived";
     property.archivedAt = new Date();
+    property.statusChangedAt = new Date();
 
     return propertyRepository.save(property);
+};
+
+exports.updatePropertyStatus = async ({
+    propertyId,
+    user,
+    status,
+}) => {
+    validatePropertyId(propertyId);
+
+    const property =
+        await propertyRepository.findById(
+            propertyId
+        );
+
+    if (!property) {
+        throw new ApiError(
+            404,
+            "Property not found"
+        );
+    }
+
+    if (
+        property.postedBy.toString() !==
+        user._id.toString()
+    ) {
+        throw new ApiError(
+            403,
+            "You do not own this property"
+        );
+    }
+
+    const currentStatus =
+        property.listingStatus;
+
+    const listingTypeTransitions =
+        PROPERTY_STATUS_TRANSITIONS[
+            property.listingType
+        ] || {};
+
+    const allowedNextStatuses =
+        listingTypeTransitions[currentStatus] || [];
+
+    if (
+        !allowedNextStatuses.includes(status)
+    ) {
+        const allowedMessage =
+            allowedNextStatuses.length > 0
+                ? allowedNextStatuses.join(", ")
+                : "none";
+
+        throw new ApiError(
+            409,
+            [
+                `A ${property.listingType} listing`,
+                `cannot move from ${currentStatus}`,
+                `to ${status}.`,
+                `Allowed next statuses: ${allowedMessage}.`,
+            ].join(" ")
+        );
+    }
+
+    const now = new Date();
+
+    property.listingStatus = status;
+    property.statusChangedAt = now;
+
+    if (status === "unavailable") {
+        property.unavailableAt = now;
+    }
+
+    if (status === "published") {
+        property.unavailableAt = null;
+
+        /*
+         * Preserve the original publication date.
+         * Set it only if it is unexpectedly missing.
+         */
+        property.publishedAt =
+            property.publishedAt || now;
+    }
+
+    if (status === "rented") {
+        property.rentedAt = now;
+        property.unavailableAt = null;
+    }
+
+    if (status === "sold") {
+        property.soldAt = now;
+        property.unavailableAt = null;
+    }
+
+    await propertyRepository.save(property);
+
+    return propertyRepository
+        .findByIdWithDetails(propertyId);
+};
+
+exports.relistProperty = async ({
+    propertyId,
+    user,
+}) => {
+    validatePropertyId(propertyId);
+
+    const property =
+        await propertyRepository.findById(
+            propertyId
+        );
+
+    if (!property) {
+        throw new ApiError(
+            404,
+            "Property not found"
+        );
+    }
+
+    if (
+        property.postedBy.toString() !==
+        user._id.toString()
+    ) {
+        throw new ApiError(
+            403,
+            "You do not own this property"
+        );
+    }
+
+    if (
+        !["rented", "sold"].includes(
+            property.listingStatus
+        )
+    ) {
+        throw new ApiError(
+            409,
+            `A ${property.listingStatus} property cannot be relisted`
+        );
+    }
+
+    if (
+        property.listingType === "rent" &&
+        property.listingStatus !== "rented"
+    ) {
+        throw new ApiError(
+            409,
+            "Only rented rental listings can be relisted"
+        );
+    }
+
+    if (
+        property.listingType === "sale" &&
+        property.listingStatus !== "sold"
+    ) {
+        throw new ApiError(
+            409,
+            "Only sold sale listings can be relisted"
+        );
+    }
+
+    const now = new Date();
+
+    property.listingStatus =
+        "pendingReview";
+
+    property.submittedForReviewAt = now;
+    property.statusChangedAt = now;
+
+    property.reviewedAt = null;
+    property.reviewedBy = null;
+    property.rejectionReason = null;
+    property.publishedAt = null;
+
+    property.rentedAt = null;
+    property.soldAt = null;
+    property.unavailableAt = null;
+
+    await propertyRepository.save(property);
+
+    return propertyRepository
+        .findByIdWithDetails(propertyId);
 };
