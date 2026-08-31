@@ -20,6 +20,9 @@ services:
       - key: NODE_ENV
         value: production
 
+      - key: NODE_VERSION
+        value: "24.14.1"
+
       - key: REDIS_URL
         fromService:
           name: real-estate-redis
@@ -54,6 +57,18 @@ services:
         sync: false
 
       - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      - key: RESEND_API_KEY
+        sync: false
+
+      - key: EMAIL_FROM
+        sync: false
+
+      - key: EMAIL_REPLY_TO
+        sync: false
+
+      - key: PASSWORD_RESET_URL
         sync: false
 
       - key: REUPLOAD_TIMEOUT_HOURS

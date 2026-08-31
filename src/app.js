@@ -98,6 +98,14 @@ app.use("/api/agent-applications", agentApplicationRoutes);
 app.use("/api/saved-properties", savedPropertyRoutes);
 app.use("/api/inspections", inspectionRoutes);
 app.use("/api/reviews", reviewRoutes);
+
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: "Route not found",
+    });
+});
+
 ////////////////
 //Error handler
 ////////////////

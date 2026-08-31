@@ -18,7 +18,14 @@ const validateQuery = (schema) => {
             });
         }
 
-        req.query = value;
+        // Express 5 exposes req.query through a prototype getter. A direct
+        // assignment is ignored, so Joi defaults/conversions would be lost.
+        Object.defineProperty(req, "query", {
+            value,
+            configurable: true,
+            enumerable: true,
+            writable: false,
+        });
 
         next();
     };

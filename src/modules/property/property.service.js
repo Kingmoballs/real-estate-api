@@ -271,6 +271,7 @@ exports.getPublicProperties = async (query) => {
         page,
         limit,
         sort: getSort(sort),
+        publicView: true,
     });
 };
 

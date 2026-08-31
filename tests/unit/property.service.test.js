@@ -57,6 +57,7 @@ describe("property public search service", () => {
                         },
                     },
                 }),
+                publicView: true,
             })
         );
     });

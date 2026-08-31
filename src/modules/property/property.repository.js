@@ -1,5 +1,20 @@
 const Property = require("./property.model");
 
+const PUBLIC_PROPERTY_EXCLUDED_FIELDS = [
+    "reviewedBy",
+    "reviewedAt",
+    "rejectionReason",
+    "submittedForReviewAt",
+    "archivedAt",
+    "unavailableAt",
+    "rentedAt",
+    "soldAt",
+    "statusChangedAt",
+    "__v",
+]
+    .map((field) => `-${field}`)
+    .join(" ");
+
 exports.findById = (id, session = null) => {
     const query = Property.findById(id);
 
@@ -14,10 +29,12 @@ exports.findPublicById = (id) => {
     return Property.findOne({
         _id: id,
         listingStatus: "published",
-    }).populate(
-        "postedBy",
-        "name email phone"
-    );
+    })
+        .select(PUBLIC_PROPERTY_EXCLUDED_FIELDS)
+        .populate(
+            "postedBy",
+            "name email phone"
+        );
 };
 
 exports.findByIdWithDetails = (id) => {
@@ -74,24 +91,33 @@ exports.findPaginated = async ({
     page = 1,
     limit = 20,
     sort = { createdAt: -1 },
+    publicView = false,
 }) => {
     const skip = (page - 1) * limit;
 
+    const propertyQuery = Property.find(filters)
+        .populate(
+            "postedBy",
+            "name email phone role"
+        )
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
+
+    if (publicView) {
+        propertyQuery.select(
+            PUBLIC_PROPERTY_EXCLUDED_FIELDS
+        );
+    } else {
+        propertyQuery.populate(
+            "reviewedBy",
+            "name email"
+        );
+    }
+
     const [properties, totalItems] =
         await Promise.all([
-            Property.find(filters)
-                .populate(
-                    "postedBy",
-                    "name email phone role"
-                )
-                .populate(
-                    "reviewedBy",
-                    "name email"
-                )
-                .sort(sort)
-                .skip(skip)
-                .limit(limit)
-                .lean(),
+            propertyQuery.lean(),
 
             Property.countDocuments(filters),
         ]);

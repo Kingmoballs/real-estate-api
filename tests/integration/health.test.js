@@ -10,4 +10,19 @@ describe("API health check", () => {
             "Real estate api is running"
         );
     });
+
+    it("returns JSON for an unknown API route", async () => {
+        const response = await request(app).get(
+            "/api/not-a-real-route"
+        );
+
+        expect(response.statusCode).toBe(404);
+        expect(response.headers["content-type"]).toMatch(
+            /application\/json/
+        );
+        expect(response.body).toEqual({
+            success: false,
+            message: "Route not found",
+        });
+    });
 });

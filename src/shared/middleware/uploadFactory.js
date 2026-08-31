@@ -1,13 +1,75 @@
 const path = require("path");
 const multer = require("multer");
-
-const {
-    CloudinaryStorage,
-} = require("multer-storage-cloudinary");
-
 const cloudinary = require(
     "@/shared/utils/cloudinary"
 );
+
+const createCloudinaryStorage = ({
+    folder,
+    allowedFormats,
+    transformation,
+}) => ({
+    _handleFile(req, file, callback) {
+        let settled = false;
+        const finish = (error, result) => {
+            if (settled) return;
+            settled = true;
+
+            if (error) {
+                callback(error);
+                return;
+            }
+
+            callback(null, {
+                path: result.secure_url || result.url,
+                filename: result.public_id,
+                size: result.bytes,
+                resourceType: result.resource_type,
+                format: result.format,
+            });
+        };
+
+        const uploadOptions = {
+            folder,
+            allowed_formats: allowedFormats,
+            resource_type: "auto",
+        };
+
+        if (transformation?.length) {
+            uploadOptions.transformation = transformation;
+        }
+
+        try {
+            const uploadStream =
+                cloudinary.uploader.upload_stream(
+                    uploadOptions,
+                    finish
+                );
+
+            file.stream.once("error", finish);
+            uploadStream.once("error", finish);
+            file.stream.pipe(uploadStream);
+        } catch (error) {
+            finish(error);
+        }
+    },
+
+    _removeFile(req, file, callback) {
+        if (!file.filename) {
+            callback(null);
+            return;
+        }
+
+        cloudinary.uploader.destroy(
+            file.filename,
+            {
+                resource_type:
+                    file.resourceType || "image",
+            },
+            (error) => callback(error || null)
+        );
+    },
+});
 
 const createUploader = ({
     folder,
@@ -74,14 +136,10 @@ const createUploader = ({
         callback(null, true);
     };
 
-    const storage = new CloudinaryStorage({
-        cloudinary,
-        params: {
-            folder,
-            allowed_formats: allowedFormats,
-            transformation,
-            resource_type: "image",
-        },
+    const storage = createCloudinaryStorage({
+        folder,
+        allowedFormats,
+        transformation,
     });
 
     return multer({
