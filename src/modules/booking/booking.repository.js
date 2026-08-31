@@ -95,6 +95,19 @@ exports.findById = (bookingId, session = null) => {
     return withSession(Booking.findById(bookingId), session);
 };
 
+exports.findCompletedByGuestAndProperty = ({
+    guestId,
+    propertyId,
+}) => {
+    return Booking.findOne({
+        guest: guestId,
+        property: propertyId,
+        bookingStatus: "completed",
+    })
+        .sort({ updatedAt: -1 })
+        .select("_id property guest bookingStatus");
+};
+
 exports.findByUser = ({ userId, filters, page, limit }) => {
     return findPaginated({
         filters: { ...filters, guest: userId },

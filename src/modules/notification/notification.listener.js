@@ -102,3 +102,61 @@ eventBus.on(EVENTS.BOOKING_CANCELLED, async (payload) => {
         console.error("Cancellation notification failed:", err.message);
     }
 });
+
+const inspectionEvents = [
+    EVENTS.INSPECTION_CREATED,
+    EVENTS.INSPECTION_CONFIRMED,
+    EVENTS.INSPECTION_RESCHEDULE_PROPOSED,
+    EVENTS.INSPECTION_RESCHEDULE_ACCEPTED,
+    EVENTS.INSPECTION_REJECTED,
+    EVENTS.INSPECTION_CANCELLED,
+    EVENTS.INSPECTION_COMPLETED,
+];
+
+inspectionEvents.forEach((eventName) => {
+    eventBus.on(eventName, async (payload) => {
+        try {
+            const notification =
+                await notificationService
+                    .createInspectionNotification(
+                        payload
+                    );
+
+            await notificationService
+                .emitInspectionNotification(
+                    notification
+                );
+        } catch (error) {
+            console.error(
+                `Inspection notification failed for ${eventName}:`,
+                error.message
+            );
+        }
+    });
+});
+
+const reviewEvents = [
+    EVENTS.REVIEW_CREATED,
+    EVENTS.REVIEW_RESPONDED,
+    EVENTS.REVIEW_MODERATED,
+];
+
+reviewEvents.forEach((eventName) => {
+    eventBus.on(eventName, async (payload) => {
+        try {
+            const notification =
+                await notificationService.createReviewNotification(
+                    payload
+                );
+
+            await notificationService.emitReviewNotification(
+                notification
+            );
+        } catch (error) {
+            console.error(
+                `Review notification failed for ${eventName}:`,
+                error.message
+            );
+        }
+    });
+});

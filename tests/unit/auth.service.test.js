@@ -23,9 +23,31 @@ jest.mock("@/shared/utils/authTokens", () => ({
     })),
 }));
 
+jest.mock("@/shared/email/email.service", () => ({
+    sendEmail: jest.fn(),
+}));
+
+jest.mock("@/shared/email/templates/passwordReset.template", () =>
+    jest.fn(({ resetUrl }) => ({
+        subject: "Reset your password",
+        html: `<a href="${resetUrl}">Reset</a>`,
+        text: `Reset: ${resetUrl}`,
+    }))
+);
+
+jest.mock("@/shared/middleware/logger", () => ({
+    error: jest.fn(),
+}));
+
 const bcrypt = require("bcryptjs");
 const userRepository = require(
     "../../src/modules/user/user.repository"
+);
+const { sendEmail } = require(
+    "../../src/shared/email/email.service"
+);
+const passwordResetTemplate = require(
+    "../../src/shared/email/templates/passwordReset.template"
 );
 const authService = require(
     "../../src/modules/auth/auth.service"
@@ -44,9 +66,24 @@ const createUser = (overrides = {}) => ({
 });
 
 describe("authentication service", () => {
+    const originalClientUrl = process.env.CLIENT_URL;
+
+    beforeAll(() => {
+        process.env.CLIENT_URL = "http://localhost:5173";
+    });
+
+    afterAll(() => {
+        if (originalClientUrl === undefined) {
+            delete process.env.CLIENT_URL;
+        } else {
+            process.env.CLIENT_URL = originalClientUrl;
+        }
+    });
+
     beforeEach(() => {
         userRepository.save.mockImplementation(async (user) => user);
         bcrypt.compare.mockResolvedValue(true);
+        sendEmail.mockResolvedValue({ id: "email-id" });
     });
 
     test("stores only a hash of the issued refresh token", async () => {
@@ -117,5 +154,67 @@ describe("authentication service", () => {
         expect(user.password).toBe("NewStrongPass!234");
         expect(user.refreshTokenHash).toBeNull();
         expect(user.passwordResetTokenHash).toBeNull();
+    });
+
+    test("emails a reset link without returning the raw token", async () => {
+        const user = createUser();
+        userRepository.findByEmail.mockResolvedValue(user);
+
+        const result = await authService.requestPasswordReset({
+            email: "TEST@example.com",
+        });
+
+        expect(user.passwordResetTokenHash).toBe(
+            "reset-token-hash"
+        );
+        expect(user.passwordResetExpiresAt).toBeInstanceOf(Date);
+        expect(passwordResetTemplate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                userName: "Test User",
+                resetUrl:
+                    "http://localhost:5173/reset-password?token=reset-token",
+                expiresInMinutes: 15,
+            })
+        );
+        expect(sendEmail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                to: "test@example.com",
+                idempotencyKey:
+                    "password-reset:user-id:reset-token-hash",
+            })
+        );
+        expect(result).toEqual({
+            emailSent: true,
+            deliveryId: "email-id",
+        });
+        expect(result.token).toBeUndefined();
+    });
+
+    test("does not send email for an unknown account", async () => {
+        userRepository.findByEmail.mockResolvedValue(null);
+
+        const result = await authService.requestPasswordReset({
+            email: "unknown@example.com",
+        });
+
+        expect(result).toBeNull();
+        expect(sendEmail).not.toHaveBeenCalled();
+    });
+
+    test("clears the reset token when email delivery fails", async () => {
+        const user = createUser();
+        userRepository.findByEmail.mockResolvedValue(user);
+        sendEmail.mockRejectedValue(
+            new Error("Provider unavailable")
+        );
+
+        const result = await authService.requestPasswordReset({
+            email: user.email,
+        });
+
+        expect(result).toBeNull();
+        expect(user.passwordResetTokenHash).toBeNull();
+        expect(user.passwordResetExpiresAt).toBeNull();
+        expect(userRepository.save).toHaveBeenCalledTimes(2);
     });
 });

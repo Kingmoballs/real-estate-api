@@ -95,24 +95,12 @@ exports.changePassword = async (req, res, next) => {
 
 exports.forgotPassword = async (req, res, next) => {
     try {
-        const reset = await authService.requestPasswordReset(
-            req.body
-        );
-        const response = {
+        await authService.requestPasswordReset(req.body);
+
+        res.status(200).json({
             message:
-                "If an active account exists for that email, password reset instructions have been generated.",
-        };
-
-        // During local/demo development there is no email provider yet.
-        // Never expose reset tokens from the production API response.
-        if (reset && process.env.NODE_ENV !== "production") {
-            response.development = {
-                resetToken: reset.token,
-                expiresInMinutes: reset.expiresInMinutes,
-            };
-        }
-
-        res.status(200).json(response);
+                "If an active account exists for that email, password reset instructions have been sent.",
+        });
     } catch (err) {
         next(err);
     }

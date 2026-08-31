@@ -56,6 +56,19 @@ exports.save = (
     return property.save();
 };
 
+exports.updateRatingSummary = (propertyId, summary) => {
+    return Property.findByIdAndUpdate(
+        propertyId,
+        {
+            $set: {
+                ratingAverage: summary.ratingAverage,
+                reviewCount: summary.reviewCount,
+            },
+        },
+        { new: true }
+    );
+};
+
 exports.findPaginated = async ({
     filters = {},
     page = 1,

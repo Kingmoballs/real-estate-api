@@ -47,6 +47,12 @@ const upload = require(
 const uploadError = require(
     "@/shared/middleware/uploadErrorMiddleware"
 );
+const normalizePropertyPayload = require(
+    "./normalizePropertyPayload"
+);
+const sanitizeBody = require(
+    "@/shared/middleware/sanitizeHtmlMiddleware"
+);
 
 const router = express.Router();
 
@@ -112,6 +118,8 @@ router.post(
     agentOnly,
     upload.array("images", 10),
     uploadError,
+    normalizePropertyPayload,
+    sanitizeBody,
     validate(createPropertySchema),
     createProperty
 );
@@ -122,6 +130,20 @@ router.put(
     agentOnly,
     upload.array("images", 10),
     uploadError,
+    normalizePropertyPayload,
+    sanitizeBody,
+    validate(updatePropertySchema),
+    updateProperty
+);
+
+router.patch(
+    "/:id",
+    protect,
+    agentOnly,
+    upload.array("images", 10),
+    uploadError,
+    normalizePropertyPayload,
+    sanitizeBody,
     validate(updatePropertySchema),
     updateProperty
 );

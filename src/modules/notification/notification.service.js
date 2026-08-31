@@ -205,3 +205,85 @@ exports.createBookingCancellationNotification = async ({
             : `Your booking was cancelled. Reason: ${reason}`,
     });
 };
+
+exports.createInspectionNotification = async ({
+    inspectionId,
+    recipientId,
+    title,
+    body,
+}) => {
+    if (!recipientId) {
+        throw new ApiError(
+            400,
+            "Notification recipient is required"
+        );
+    }
+
+    return Notification.create({
+        user: recipientId,
+        type: "inspection",
+        inspection: inspectionId,
+        title,
+        body,
+    });
+};
+
+exports.emitInspectionNotification = (
+    notification
+) => {
+    const io = getIO();
+
+    io.to(notification.user.toString()).emit(
+        "notification",
+        {
+            id: notification._id,
+            type: notification.type,
+            inspectionId:
+                notification.inspection,
+            title: notification.title,
+            body: notification.body,
+            isRead: notification.isRead,
+            createdAt:
+                notification.createdAt,
+        }
+    );
+};
+
+exports.createReviewNotification = async ({
+    reviewId,
+    recipientId,
+    title,
+    body,
+}) => {
+    if (!recipientId) {
+        throw new ApiError(
+            400,
+            "Notification recipient is required"
+        );
+    }
+
+    return Notification.create({
+        user: recipientId,
+        type: "review",
+        review: reviewId,
+        title,
+        body,
+    });
+};
+
+exports.emitReviewNotification = (notification) => {
+    const io = getIO();
+
+    io.to(notification.user.toString()).emit(
+        "notification",
+        {
+            id: notification._id,
+            type: notification.type,
+            reviewId: notification.review,
+            title: notification.title,
+            body: notification.body,
+            isRead: notification.isRead,
+            createdAt: notification.createdAt,
+        }
+    );
+};

@@ -1,6 +1,11 @@
 const bcrypt = require("bcryptjs");
 const userRepository = require("../user/user.repository");
 const ApiError = require("@/shared/utils/ApiError");
+const logger = require("@/shared/middleware/logger");
+const { sendEmail } = require("@/shared/email/email.service");
+const passwordResetTemplate = require(
+    "@/shared/email/templates/passwordReset.template"
+);
 const {
     hashToken,
     createAccessToken,
@@ -10,6 +15,35 @@ const {
 } = require("@/shared/utils/authTokens");
 
 const PASSWORD_RESET_MINUTES = 15;
+
+const buildPasswordResetUrl = (token) => {
+    const configuredResetUrl =
+        process.env.PASSWORD_RESET_URL?.trim();
+    const configuredClientUrl = process.env.CLIENT_URL
+        ?.split(",")[0]
+        ?.trim();
+
+    let resetUrl;
+
+    if (configuredResetUrl) {
+        resetUrl = new URL(configuredResetUrl);
+    } else if (configuredClientUrl) {
+        resetUrl = new URL("/reset-password", configuredClientUrl);
+    } else {
+        throw new Error(
+            "PASSWORD_RESET_URL or CLIENT_URL must be configured"
+        );
+    }
+
+    resetUrl.searchParams.set("token", token);
+    return resetUrl.toString();
+};
+
+const clearPasswordResetToken = async (user) => {
+    user.passwordResetTokenHash = null;
+    user.passwordResetExpiresAt = null;
+    await userRepository.save(user);
+};
 
 const publicUser = (user) => ({
     id: user._id,
@@ -230,12 +264,46 @@ exports.requestPasswordReset = async ({ email }) => {
     );
     await userRepository.save(user);
 
-    return {
-        token,
-        expiresInMinutes: PASSWORD_RESET_MINUTES,
-        userId: user._id,
-        email: user.email,
-    };
+    try {
+        const resetUrl = buildPasswordResetUrl(token);
+        const template = passwordResetTemplate({
+            userName: user.name,
+            resetUrl,
+            expiresInMinutes: PASSWORD_RESET_MINUTES,
+        });
+
+        const delivery = await sendEmail({
+            to: user.email,
+            subject: template.subject,
+            html: template.html,
+            text: template.text,
+            idempotencyKey: [
+                "password-reset",
+                user._id,
+                tokenHash.slice(0, 16),
+            ].join(":"),
+        });
+
+        return {
+            emailSent: true,
+            deliveryId: delivery.id,
+        };
+    } catch (error) {
+        try {
+            await clearPasswordResetToken(user);
+        } catch (cleanupError) {
+            logger.error(
+                `Failed to clear password reset token for user ${user._id}: ${cleanupError.message}`
+            );
+        }
+
+        // The public endpoint must not reveal whether the email exists or
+        // whether its delivery failed. Provider details stay in server logs.
+        logger.error(
+            `Password reset email was not delivered for user ${user._id}`
+        );
+        return null;
+    }
 };
 
 exports.resetPassword = async ({ token, newPassword }) => {

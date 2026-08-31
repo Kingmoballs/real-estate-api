@@ -26,6 +26,9 @@ const dashboardRoutes = require("@/modules/dashboard/dashboard.route");
 const notificationRoutes = require("@/modules/notification/notification.route");
 const userRoutes = require("@/modules/user/user.route");
 const agentApplicationRoutes = require("@/modules/agentApplication/agentApplication.route");
+const savedPropertyRoutes = require("@/modules/savedProperty/savedProperty.route");
+const inspectionRoutes = require("@/modules/inspection/inspection.route");
+const reviewRoutes = require("@/modules/review/review.route");
 
 const app = express();
 
@@ -92,7 +95,9 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/agent-applications", agentApplicationRoutes);
-
+app.use("/api/saved-properties", savedPropertyRoutes);
+app.use("/api/inspections", inspectionRoutes);
+app.use("/api/reviews", reviewRoutes);
 ////////////////
 //Error handler
 ////////////////

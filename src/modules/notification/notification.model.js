@@ -15,6 +15,8 @@ const notificationSchema = new mongoose.Schema(
                 "message",
                 "property",
                 "booking",
+                "inspection",
+                "review",
                 "system"
             ],
             required: true,
@@ -43,6 +45,18 @@ const notificationSchema = new mongoose.Schema(
         booking: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Booking",
+        },
+
+        inspection: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Inspection",
+            default: null,
+        },
+
+        review: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Review",
+            default: null,
         },
 
         isRead: {
