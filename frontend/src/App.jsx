@@ -18,12 +18,16 @@ import AgentInspectionsPage from './pages/agent/AgentInspectionsPage.jsx'
 import AgentPropertiesPage from './pages/agent/AgentPropertiesPage.jsx'
 import AgentPropertyFormPage from './pages/agent/AgentPropertyFormPage.jsx'
 import AgentReviewsPage from './pages/agent/AgentReviewsPage.jsx'
+import AgentApplicationPage from './pages/AgentApplicationPage.jsx'
 import AdminPropertiesPage from './pages/admin/AdminPropertiesPage.jsx'
 import AdminPropertyReviewPage from './pages/admin/AdminPropertyReviewPage.jsx'
 import AdminInspectionsPage from './pages/admin/AdminInspectionsPage.jsx'
 import AdminBookingsPage from './pages/admin/AdminBookingsPage.jsx'
 import AdminReviewsPage from './pages/admin/AdminReviewsPage.jsx'
 import MessagesPage from './pages/MessagesPage.jsx'
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
+import ChangePasswordPage from './pages/ChangePasswordPage.jsx'
 
 function App() {
   return (
@@ -34,11 +38,24 @@ function App() {
         <Route path="properties/:propertyId" element={<PropertyDetailsPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
+        <Route
+          path="forgot-password"
+          element={<ForgotPasswordPage />}
+        />
+
+        <Route
+          path="reset-password"
+          element={<ResetPasswordPage />}
+        />
 
         <Route element={<ProtectedRoute />}>
           <Route
             path="account"
             element={<AccountPage />}
+          />
+          <Route
+            path="account/security"
+            element={<ChangePasswordPage />}
           />
           <Route
             path="bookings"
@@ -52,6 +69,10 @@ function App() {
           <Route
             path="messages/:conversationId"
             element={<MessagesPage />}
+          />
+          <Route
+            path="agent-application"
+            element={<AgentApplicationPage />}
           />
         </Route>
 

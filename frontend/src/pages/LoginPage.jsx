@@ -78,20 +78,37 @@ function LoginPage() {
               </span>
             )}
           </label>
-          <label className="block text-sm font-bold text-stone-700">
-            Password
+          <div>
+            <div className="flex items-center justify-between gap-4">
+              <label
+                htmlFor="login-password"
+                className="text-sm font-bold text-stone-700"
+              >
+                Password
+              </label>
+
+              <Link
+                to="/forgot-password"
+                className="focus-ring text-xs font-extrabold text-emerald-800"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             <input
+              id="login-password"
               type="password"
               autoComplete="current-password"
               {...register('password')}
               className="focus-ring mt-2 w-full rounded-xl border border-stone-300 px-4 py-3.5 font-normal"
             />
+
             {errors.password && (
               <span className="mt-1.5 block text-xs font-semibold text-red-600">
                 {errors.password.message}
               </span>
             )}
-          </label>
+          </div>
 
           {serverError && (
             <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">

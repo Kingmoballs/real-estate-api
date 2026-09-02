@@ -1,5 +1,6 @@
 import {
   Bookmark,
+  BriefcaseBusiness,
   CalendarCheck2,
   CalendarRange,
   MessageSquareText,
@@ -75,12 +76,25 @@ function AccountPage() {
             <p className="mt-2 text-sm text-emerald-100/70">{user.email}</p>
           </div>
           {user.role === 'user' && (
-            <Link
-              to="/bookings"
-              className="focus-ring flex w-fit items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-emerald-950"
-            >
-              <CalendarRange size={17} /> View shortlet bookings
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/bookings"
+                className="focus-ring flex w-fit items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-emerald-950"
+              >
+                <CalendarRange size={17} />
+                View shortlet bookings
+              </Link>
+
+              <Link
+                to="/agent-application"
+                className="focus-ring flex w-fit items-center gap-2 rounded-xl border border-emerald-700 bg-emerald-900 px-4 py-3 text-sm font-black text-white"
+              >
+                <BriefcaseBusiness
+                  size={17}
+                />
+                Become an agent
+              </Link>
+            </div>
           )}
         </div>
       </section>

@@ -25,6 +25,7 @@ function AppFooter() {
           <p className="mb-3 text-sm font-extrabold">Account</p>
           <div className="flex flex-col gap-2 text-sm text-emerald-100/70">
             <Link to="/register">Create an account</Link>
+            <Link to="/agent-application">Become an agent</Link>
             <Link to="/login">Agent and admin login</Link>
             <Link to="/account">My dashboard</Link>
           </div>

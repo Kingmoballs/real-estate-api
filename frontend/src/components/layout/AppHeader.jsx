@@ -3,6 +3,7 @@ import {
   LogOut,
   Menu,
   MessageCircle,
+  ShieldCheck,
   UserRound,
   X,
 } from 'lucide-react'
@@ -103,6 +104,17 @@ function AppHeader() {
             <NotificationCenter />
           )}
 
+          {user && (
+            <Link
+              to="/account/security"
+              className="focus-ring hidden size-10 place-items-center rounded-full border border-stone-300 bg-white text-stone-700 transition hover:border-emerald-800 hover:text-emerald-900 md:grid"
+              aria-label="Account security"
+              title="Account security"
+            >
+              <ShieldCheck size={19} />
+            </Link>
+          )}
+
           <div className="hidden items-center gap-3 md:flex">
             {user ? (
               <>
@@ -195,6 +207,14 @@ function AppHeader() {
                   className="rounded-xl px-4 py-3 font-bold text-emerald-950 hover:bg-white"
                 >
                   Open dashboard
+                </Link>
+
+                <Link
+                  to="/account/security"
+                  onClick={closeMenu}
+                  className="rounded-xl px-4 py-3 font-bold text-stone-700 hover:bg-white"
+                >
+                  Account security
                 </Link>
 
                 <button
