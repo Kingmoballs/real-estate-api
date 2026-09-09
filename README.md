@@ -176,9 +176,9 @@ production use.
 
 The React application lives in [`frontend`](frontend). It has independent
 lint, unit, browser, build, and deployment-environment checks documented in
-[`frontend/README.md`](frontend/README.md). The existing Render Blueprint
-deploys only the API; choosing and configuring a free static frontend host is
-a separate deployment step.
+[`frontend/README.md`](frontend/README.md). It is configured for Cloudflare
+Workers Static Assets, while the existing Render Blueprint deploys only the
+API.
 
 ## Current product boundary
 

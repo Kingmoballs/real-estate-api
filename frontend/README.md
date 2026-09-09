@@ -72,7 +72,7 @@ Administrators can approve or reject agent applications and property submissions
 
 The Playwright suite mocks the browser-facing API so it is repeatable and never changes Atlas data. Backend integration tests in the repository root verify the real API and database behavior separately.
 
-## Deployment readiness
+## Cloudflare deployment readiness
 
 1. Copy `.env.production.example` to `.env.production` for a local production-build check, or add those variables in the selected hosting dashboard.
 2. Set `VITE_API_BASE_URL` to the Render API URL followed by `/api`.
@@ -81,4 +81,6 @@ The Playwright suite mocks the browser-facing API so it is repeatable and never 
 5. Configure the backend `CLIENT_URL` and `PASSWORD_RESET_URL` after the frontend receives its public URL.
 6. Restrict the Geoapify key to the deployed frontend domain.
 
-The project includes SPA fallback files for common static hosts: `public/_redirects` and `vercel.json`. They ensure that direct visits to routes such as `/properties/:propertyId` and `/account` return `index.html` instead of a host-level 404. We will choose the actual free host separately.
+The frontend is configured for Cloudflare Workers Static Assets in `wrangler.jsonc`. The `single-page-application` fallback ensures that direct visits to routes such as `/properties/:propertyId` and `/account` return `index.html` instead of a host-level 404.
+
+Use `npm run cloudflare:dry-run` to validate the compiled asset upload without publishing. `npm run deploy:cloudflare` is available for an intentional manual deployment, but the recommended workflow is Cloudflare Workers Builds connected to GitHub.
