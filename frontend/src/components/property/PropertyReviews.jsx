@@ -150,7 +150,7 @@ function ReviewForm({ propertyId, onCreated }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-6"
+      className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-5 sm:p-6"
     >
       <div className="flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-900 text-white">
@@ -255,7 +255,7 @@ function ReviewAccess({
 
   if (!user) {
     return (
-      <div className="rounded-[1.6rem] border border-stone-200 bg-stone-50 p-6">
+      <div className="rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5 sm:p-6">
         <h3 className="font-black text-stone-900">
           Have you experienced this property?
         </h3>
@@ -288,7 +288,7 @@ function ReviewAccess({
 
   if (isError) {
     return (
-      <div className="rounded-[1.6rem] border border-red-200 bg-red-50 p-6">
+      <div className="rounded-[1.6rem] border border-red-200 bg-red-50 p-5 sm:p-6">
         <p className="flex items-center gap-2 text-sm font-semibold text-red-700">
           <AlertTriangle size={18} />
           {getApiErrorMessage(
@@ -310,7 +310,7 @@ function ReviewAccess({
   }
 
   return (
-    <div className="rounded-[1.6rem] border border-stone-200 bg-stone-50 p-6">
+    <div className="rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5 sm:p-6">
       <p className="flex items-center gap-2 text-sm font-black text-stone-800">
         <BadgeCheck
           size={18}
@@ -433,7 +433,7 @@ function PropertyReviews({ propertyId }) {
 
               <h2
                 id="reviews-heading"
-                className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900"
+                className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl"
               >
                 Property reviews
               </h2>

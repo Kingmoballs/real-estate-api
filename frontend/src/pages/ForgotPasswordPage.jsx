@@ -55,13 +55,13 @@ function ForgotPasswordPage() {
 
   if (result) {
     return (
-      <main className="page-shell grid min-h-[70vh] place-items-center py-12">
-        <section className="w-full max-w-md rounded-[2rem] border border-stone-200 bg-white p-7 text-center shadow-[0_20px_60px_rgba(28,44,36,0.08)] sm:p-9">
+      <main className="page-shell grid min-h-[70vh] place-items-center py-8 sm:py-12">
+        <section className="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-[0_20px_60px_rgba(28,44,36,0.08)] sm:rounded-[2rem] sm:p-9">
           <span className="mx-auto grid size-12 place-items-center rounded-xl bg-emerald-100 text-emerald-900">
             <MailCheck size={23} />
           </span>
 
-          <h1 className="mt-5 text-3xl font-black tracking-[-0.045em] text-stone-900">
+          <h1 className="mt-5 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
             Check your email
           </h1>
 
@@ -102,15 +102,15 @@ function ForgotPasswordPage() {
   }
 
   return (
-    <main className="page-shell grid min-h-[70vh] place-items-center py-12">
-      <section className="w-full max-w-md rounded-[2rem] border border-stone-200 bg-white p-7 shadow-[0_20px_60px_rgba(28,44,36,0.08)] sm:p-9">
+    <main className="page-shell grid min-h-[70vh] place-items-center py-8 sm:py-12">
+      <section className="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-5 shadow-[0_20px_60px_rgba(28,44,36,0.08)] sm:rounded-[2rem] sm:p-9">
         <span className="mb-5 grid size-11 place-items-center rounded-xl bg-emerald-100 text-emerald-900">
           <MailCheck size={21} />
         </span>
 
         <p className="eyebrow">Account recovery</p>
 
-        <h1 className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900">
+        <h1 className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
           Forgot your password?
         </h1>
 

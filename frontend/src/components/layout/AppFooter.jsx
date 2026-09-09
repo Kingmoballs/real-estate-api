@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 function AppFooter() {
   return (
     <footer className="mt-20 bg-emerald-950 text-emerald-50">
-      <div className="page-shell grid gap-10 py-12 md:grid-cols-[1.5fr_1fr_1fr]">
-        <div>
+      <div className="page-shell grid grid-cols-2 gap-x-6 gap-y-8 py-10 md:grid-cols-[1.5fr_1fr_1fr] md:gap-10 md:py-12">
+        <div className="col-span-2 md:col-span-1">
           <div className="mb-4 flex items-center gap-2.5 text-xl font-black">
             <Building2 size={23} /> Haven
           </div>

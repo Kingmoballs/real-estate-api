@@ -103,7 +103,7 @@ function AgentDashboardPage() {
       </div>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.75fr]">
-        <div className="rounded-2xl border border-stone-200 bg-white p-6">
+        <div className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">Booking performance</p>
@@ -145,7 +145,7 @@ function AgentDashboardPage() {
           </div>
         </div>
 
-        <aside className="rounded-2xl bg-amber-50 p-6">
+        <aside className="rounded-2xl bg-amber-50 p-5 sm:p-6">
           <p className="eyebrow">Next action</p>
           <h2 className="mt-2 text-xl font-black text-stone-900">
             Grow your live portfolio

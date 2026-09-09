@@ -156,7 +156,7 @@ function PropertyDetailsPage() {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
         <div>
-          <div className="rounded-[2rem] border border-stone-200 bg-white p-7 shadow-sm sm:p-9">
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-9">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-extrabold text-emerald-900">
                 {listingLabels[property.listingType] || 'Published property'}
@@ -173,7 +173,7 @@ function PropertyDetailsPage() {
               )}
             </div>
 
-            <h1 className="mt-5 text-3xl font-black tracking-[-0.045em] text-stone-900 sm:text-5xl">
+            <h1 className="mt-5 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-5xl">
               {property.title}
             </h1>
             <p className="mt-4 flex items-start gap-2 text-sm font-semibold text-stone-500">

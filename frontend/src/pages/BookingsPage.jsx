@@ -170,11 +170,11 @@ function BookingsPage() {
   }
 
   return (
-    <main className="page-shell py-10 sm:py-14">
+    <main className="page-shell py-8 sm:py-14">
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p className="eyebrow">Shortlet activity</p>
-          <h1 className="mt-2 text-4xl font-black tracking-[-0.05em] text-stone-900 sm:text-5xl">
+          <h1 className="mt-2 text-3xl font-black tracking-[-0.05em] text-stone-900 sm:text-5xl">
             My bookings
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-500">
@@ -189,19 +189,19 @@ function BookingsPage() {
         </Link>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="mt-6 grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:mt-8 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
         <span className="flex items-center gap-2 text-sm font-black text-stone-700">
           <CalendarRange size={18} className="text-amber-700" />
           Booking history
         </span>
-        <label className="flex items-center gap-2 text-xs font-extrabold text-stone-500">
+        <label className="flex flex-col gap-2 text-xs font-extrabold text-stone-500 sm:flex-row sm:items-center">
           Status
           <select
             value={status}
             onChange={(event) =>
               updateParams({ status: event.target.value, page: null })
             }
-            className="focus-ring rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700"
+            className="focus-ring w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 sm:w-auto"
           >
             {bookingStatuses.map(([value, label]) => (
               <option key={value || 'all'} value={value}>
@@ -278,11 +278,11 @@ function BookingsPage() {
             return (
               <article
                 key={booking._id}
-                className="grid gap-5 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-[180px_1fr] md:p-5"
+                className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-[180px_1fr] md:gap-5 md:p-5"
               >
                 <PropertyImage
                   property={property}
-                  className="aspect-[4/3] w-full rounded-xl md:aspect-square"
+                  className="aspect-[2/1] w-full rounded-xl md:aspect-square"
                   sizes="180px"
                 />
                 <div className="min-w-0">

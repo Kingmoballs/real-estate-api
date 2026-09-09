@@ -243,7 +243,7 @@ function MyReviewCard({
     <article className="grid gap-5 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-[170px_1fr] md:p-5">
       <PropertyImage
         property={property}
-        className="aspect-[4/3] w-full rounded-xl md:aspect-square"
+        className="aspect-[2/1] w-full rounded-xl md:aspect-square"
         sizes="170px"
       />
 
@@ -307,7 +307,8 @@ function MyReviewCard({
                 )}
               </span>
 
-              {review.updatedAt !==
+              {review.updatedAt &&
+                review.updatedAt !==
                 review.createdAt && (
                 <span className="text-xs font-semibold text-stone-400">
                   Edited{' '}

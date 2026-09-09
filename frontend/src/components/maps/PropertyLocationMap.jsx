@@ -38,7 +38,7 @@ function PropertyLocationMap({
     <section
       className={`${className} overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm`}
     >
-      <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+      <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
         <div>
           <p className="eyebrow">Location</p>
           <h2 className="mt-1 text-xl font-black text-stone-900">
@@ -67,7 +67,7 @@ function PropertyLocationMap({
           center={position}
           zoom={16}
           scrollWheelZoom={false}
-          className="h-[20rem] w-full sm:h-[25rem]"
+          className="h-[16rem] w-full sm:h-[25rem]"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | <a href="https://www.geoapify.com/">Geoapify</a>'
@@ -82,7 +82,7 @@ function PropertyLocationMap({
           </Marker>
         </MapContainer>
       ) : (
-        <div className="border-t border-stone-200 bg-stone-50 px-6 py-8 text-sm leading-6 text-stone-600 sm:px-7">
+        <div className="border-t border-stone-200 bg-stone-50 px-5 py-6 text-sm leading-6 text-stone-600 sm:px-7 sm:py-8">
           The embedded map is unavailable, but you can open the property
           location using the link above.
         </div>

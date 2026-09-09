@@ -22,20 +22,20 @@ const workspaceLinks = [
 
 function AgentWorkspaceShell() {
   return (
-    <main className="page-shell py-8 sm:py-10">
-      <section className="rounded-[2rem] bg-emerald-950 px-6 py-7 text-white sm:px-8">
+    <main className="page-shell py-6 sm:py-10">
+      <section className="rounded-2xl bg-emerald-950 px-5 py-6 text-white sm:rounded-[2rem] sm:px-8 sm:py-7">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-emerald-200">
               Agent workspace
             </p>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.045em]">
+            <h1 className="mt-2 text-2xl font-black tracking-[-0.045em] sm:text-3xl">
               Manage your property business
             </h1>
           </div>
           <Link
             to="/agent/properties/new"
-            className="focus-ring flex w-fit items-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-black text-emerald-950 hover:bg-amber-400"
+            className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-black text-emerald-950 hover:bg-amber-400 sm:w-fit"
           >
             <Plus size={18} /> Add property
           </Link>
@@ -43,7 +43,7 @@ function AgentWorkspaceShell() {
       </section>
 
       <nav
-        className="mt-5 flex gap-1 overflow-x-auto border-b border-stone-200"
+        className="hide-scrollbar -mx-4 mt-4 flex snap-x snap-mandatory gap-1 overflow-x-auto border-b border-stone-200 px-4 sm:mx-0 sm:mt-5 sm:px-0"
         aria-label="Agent workspace"
       >
         {workspaceLinks.map(({ to, label, icon: Icon, end }) => (
@@ -52,7 +52,7 @@ function AgentWorkspaceShell() {
             to={to}
             end={end}
             className={({ isActive }) =>
-              'focus-ring flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-extrabold ' +
+              'focus-ring flex shrink-0 snap-start items-center gap-2 border-b-2 px-3 py-3 text-sm font-extrabold sm:px-4 ' +
               (isActive
                 ? 'border-emerald-900 text-emerald-900'
                 : 'border-transparent text-stone-500 hover:text-stone-800')
@@ -63,7 +63,7 @@ function AgentWorkspaceShell() {
         ))}
       </nav>
 
-      <div className="mt-7">
+      <div className="mt-5 sm:mt-7">
         <Suspense fallback={<RouteLoadingFallback compact />}>
           <Outlet />
         </Suspense>

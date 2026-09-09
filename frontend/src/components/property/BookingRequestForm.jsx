@@ -274,7 +274,7 @@ function BookingRequestForm({ property }) {
   return (
     <form
       onSubmit={handleAvailabilityCheck}
-      className="rounded-[1.6rem] border border-stone-200 bg-white p-6 shadow-sm"
+      className="rounded-[1.6rem] border border-stone-200 bg-white p-5 shadow-sm sm:p-6"
     >
       <CalendarRange
         className="text-amber-700"

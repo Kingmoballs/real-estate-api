@@ -68,16 +68,16 @@ function InspectionsPanel({
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-5 grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
         <p className="text-sm font-semibold text-stone-500">
           Track confirmations and proposed schedule changes from listing agents.
         </p>
-        <label className="flex items-center gap-2 text-xs font-extrabold text-stone-500">
+        <label className="flex flex-col gap-2 text-xs font-extrabold text-stone-500 sm:flex-row sm:items-center">
           Status
           <select
             value={status}
             onChange={(event) => onStatusChange(event.target.value)}
-            className="focus-ring rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700"
+            className="focus-ring w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 sm:w-auto"
           >
             {inspectionStatuses.map(([value, label]) => (
               <option key={value || 'all'} value={value}>
@@ -154,7 +154,7 @@ function InspectionsPanel({
               >
                 <PropertyImage
                   property={property}
-                  className="aspect-[4/3] w-full rounded-xl sm:aspect-square"
+                  className="aspect-[2/1] w-full rounded-xl sm:aspect-square"
                   sizes="150px"
                 />
                 <div className="min-w-0">

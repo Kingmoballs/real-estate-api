@@ -859,8 +859,8 @@ function MessagesPage() {
   }
 
   return (
-    <main className="page-shell py-7 sm:py-10">
-      <div className="mb-6">
+    <main className="page-shell py-5 sm:py-10">
+      <div className={conversationId ? 'mb-3 lg:mb-6' : 'mb-5 sm:mb-6'}>
         <p className="text-xs font-extrabold uppercase tracking-[0.15em] text-emerald-700">
           Property conversations
         </p>
@@ -869,14 +869,14 @@ function MessagesPage() {
           Messages
         </h1>
 
-        <p className="mt-2 text-sm leading-6 text-stone-500">
+        <p className={(conversationId ? 'hidden lg:block ' : '') + 'mt-2 text-sm leading-6 text-stone-500'}>
           Keep property questions and
           agent responses together in
           one secure conversation.
         </p>
       </div>
 
-      <div className="grid min-h-[42rem] overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="grid h-[calc(100dvh-12rem)] min-h-[32rem] max-h-[46rem] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm sm:rounded-[2rem] lg:h-auto lg:min-h-[42rem] lg:max-h-none lg:grid-cols-[340px_minmax(0,1fr)]">
         <div
           className={
             conversationId

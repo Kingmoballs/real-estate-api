@@ -85,7 +85,7 @@ function AdminAgentApplicationsPage() {
       <div>
         <p className="eyebrow">Agent onboarding</p>
 
-        <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900">
+        <h2 className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
           Agent applications
         </h2>
 
@@ -95,13 +95,13 @@ function AdminAgentApplicationsPage() {
         </p>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="mt-5 grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:mt-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
         <span className="flex items-center gap-2 text-sm font-black text-stone-700">
           <ClipboardCheck size={18} className="text-amber-700" />
           Application review queue
         </span>
 
-        <label className="flex items-center gap-2 text-xs font-extrabold text-stone-500">
+        <label className="flex flex-col gap-2 text-xs font-extrabold text-stone-500 sm:flex-row sm:items-center">
           Status
 
           <select
@@ -112,7 +112,7 @@ function AdminAgentApplicationsPage() {
                 page: null,
               })
             }
-            className="focus-ring rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700"
+            className="focus-ring w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 sm:w-auto"
           >
             {applicationStatuses.map(([value, label]) => (
               <option key={value || 'all'} value={value}>

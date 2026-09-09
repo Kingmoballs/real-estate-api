@@ -126,7 +126,7 @@ function AdvancedPropertyFilters({
   return (
     <details
       open={hasAdvancedFilters || undefined}
-      className="md:col-span-2 xl:col-span-5"
+      className="col-span-2 md:col-span-2 xl:col-span-5"
     >
       <summary className="focus-ring flex cursor-pointer list-none items-center gap-2 rounded-xl py-2 text-sm font-black text-emerald-950">
         <SlidersHorizontal size={17} />

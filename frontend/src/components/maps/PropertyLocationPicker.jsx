@@ -268,7 +268,7 @@ function PropertyLocationPicker({
           center={position}
           zoom={hasSelection ? 16 : 11}
           scrollWheelZoom={false}
-          className="h-[22rem] w-full sm:h-[26rem]"
+          className="h-[18rem] w-full sm:h-[26rem]"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | <a href="https://www.geoapify.com/">Geoapify</a>'

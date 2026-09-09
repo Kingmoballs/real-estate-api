@@ -41,10 +41,10 @@ const workspaceLinks = [
 
 function AdminWorkspaceShell() {
   return (
-    <main className="page-shell py-8 sm:py-10">
-      <section className="rounded-[2rem] bg-stone-950 px-6 py-7 text-white sm:px-8">
+    <main className="page-shell py-6 sm:py-10">
+      <section className="rounded-2xl bg-stone-950 px-5 py-6 text-white sm:rounded-[2rem] sm:px-8 sm:py-7">
         <div className="flex items-center gap-4">
-          <span className="grid size-12 place-items-center rounded-xl bg-white/10">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 sm:size-12">
             <ShieldCheck size={23} />
           </span>
 
@@ -53,7 +53,7 @@ function AdminWorkspaceShell() {
               Platform administration
             </p>
 
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.045em]">
+            <h1 className="mt-2 text-2xl font-black tracking-[-0.045em] sm:text-3xl">
               Operate and moderate Haven
             </h1>
           </div>
@@ -61,7 +61,7 @@ function AdminWorkspaceShell() {
       </section>
 
       <nav
-        className="mt-5 flex gap-1 overflow-x-auto border-b border-stone-200"
+        className="hide-scrollbar -mx-4 mt-4 flex snap-x snap-mandatory gap-1 overflow-x-auto border-b border-stone-200 px-4 sm:mx-0 sm:mt-5 sm:px-0"
         aria-label="Administrator workspace"
       >
         {workspaceLinks.map(({ to, label, icon: Icon, end }) => (
@@ -70,7 +70,7 @@ function AdminWorkspaceShell() {
             to={to}
             end={end}
             className={({ isActive }) =>
-              'focus-ring flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-extrabold ' +
+              'focus-ring flex shrink-0 snap-start items-center gap-2 border-b-2 px-3 py-3 text-sm font-extrabold sm:px-4 ' +
               (isActive
                 ? 'border-stone-950 text-stone-950'
                 : 'border-transparent text-stone-500 hover:text-stone-800')
@@ -82,7 +82,7 @@ function AdminWorkspaceShell() {
         ))}
       </nav>
 
-      <div className="mt-7">
+      <div className="mt-5 sm:mt-7">
         <Suspense fallback={<RouteLoadingFallback compact />}>
           <Outlet />
         </Suspense>

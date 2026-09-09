@@ -209,7 +209,7 @@ function AdminPropertyReviewPage() {
         <div>
           <p className="eyebrow">Property moderation</p>
 
-          <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900">
+          <h2 className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
             {property.title}
           </h2>
 
@@ -228,7 +228,7 @@ function AdminPropertyReviewPage() {
 
       <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
         <div className="space-y-6">
-          <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-extrabold text-emerald-900">
                 {listingLabels[property.listingType]}

@@ -60,8 +60,8 @@ function AccountPage() {
   }
 
   return (
-    <main className="page-shell py-10 sm:py-14">
-      <section className="rounded-[2rem] bg-emerald-950 px-6 py-8 text-white sm:px-9">
+    <main className="page-shell py-8 sm:py-14">
+      <section className="rounded-2xl bg-emerald-950 px-5 py-6 text-white sm:rounded-[2rem] sm:px-9 sm:py-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <span className="grid size-11 place-items-center rounded-xl bg-white/10">
@@ -70,16 +70,16 @@ function AccountPage() {
             <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.16em] text-emerald-200">
               My account
             </p>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.045em] sm:text-4xl">
+            <h1 className="mt-2 text-2xl font-black tracking-[-0.045em] sm:text-4xl">
               Welcome, {user.name.split(' ')[0]}
             </h1>
             <p className="mt-2 text-sm text-emerald-100/70">{user.email}</p>
           </div>
           {user.role === 'user' && (
-            <div className="flex flex-wrap gap-3">
+            <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-3">
               <Link
                 to="/bookings"
-                className="focus-ring flex w-fit items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-emerald-950"
+                className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-emerald-950 sm:w-fit"
               >
                 <CalendarRange size={17} />
                 View shortlet bookings
@@ -87,7 +87,7 @@ function AccountPage() {
 
               <Link
                 to="/agent-application"
-                className="focus-ring flex w-fit items-center gap-2 rounded-xl border border-emerald-700 bg-emerald-900 px-4 py-3 text-sm font-black text-white"
+                className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-700 bg-emerald-900 px-4 py-3 text-sm font-black text-white sm:w-fit"
               >
                 <BriefcaseBusiness
                   size={17}
@@ -99,12 +99,12 @@ function AccountPage() {
         </div>
       </section>
 
-      <div className="mt-8 flex gap-2 border-b border-stone-200">
+      <div className="hide-scrollbar -mx-4 mt-6 flex snap-x snap-mandatory gap-1 overflow-x-auto border-b border-stone-200 px-4 sm:mx-0 sm:mt-8 sm:gap-2 sm:px-0">
         <button
           type="button"
           onClick={() => selectTab('saved')}
           className={
-            'focus-ring flex cursor-pointer items-center gap-2 border-b-2 px-4 py-3 text-sm font-extrabold ' +
+            'focus-ring flex shrink-0 snap-start cursor-pointer items-center gap-2 border-b-2 px-3 py-3 text-sm font-extrabold sm:px-4 ' +
             (tab === 'saved'
               ? 'border-emerald-900 text-emerald-900'
               : 'border-transparent text-stone-500')
@@ -117,7 +117,7 @@ function AccountPage() {
             type="button"
             onClick={() => selectTab('inspections')}
             className={
-              'focus-ring flex cursor-pointer items-center gap-2 border-b-2 px-4 py-3 text-sm font-extrabold ' +
+              'focus-ring flex shrink-0 snap-start cursor-pointer items-center gap-2 border-b-2 px-3 py-3 text-sm font-extrabold sm:px-4 ' +
               (tab === 'inspections'
                 ? 'border-emerald-900 text-emerald-900'
                 : 'border-transparent text-stone-500')
@@ -134,7 +134,7 @@ function AccountPage() {
               selectTab('reviews')
             }
             className={
-              'focus-ring flex cursor-pointer items-center gap-2 border-b-2 px-4 py-3 text-sm font-extrabold ' +
+              'focus-ring flex shrink-0 snap-start cursor-pointer items-center gap-2 border-b-2 px-3 py-3 text-sm font-extrabold sm:px-4 ' +
               (tab === 'reviews'
                 ? 'border-emerald-900 text-emerald-900'
                 : 'border-transparent text-stone-500')
@@ -146,7 +146,7 @@ function AccountPage() {
         )}
       </div>
 
-      <section className="mt-7">
+      <section className="mt-5 sm:mt-7">
         {tab === 'saved' && (
           <SavedPropertiesPanel
             page={savedPage}

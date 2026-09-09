@@ -120,7 +120,7 @@ function AdminBookingsPage() {
       <div>
         <p className="eyebrow">Shortlet operations</p>
 
-        <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900">
+        <h2 className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
           Booking and payment management
         </h2>
 
@@ -130,14 +130,14 @@ function AdminBookingsPage() {
         </p>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="mt-5 grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:mt-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
         <span className="flex items-center gap-2 text-sm font-black text-stone-700">
           <CreditCard size={18} className="text-amber-700" />
           Payment review queue
         </span>
 
-        <div className="flex flex-wrap gap-3">
-          <label className="flex items-center gap-2 text-xs font-extrabold text-stone-500">
+        <div className="grid gap-3 sm:flex sm:flex-wrap">
+          <label className="flex flex-col gap-2 text-xs font-extrabold text-stone-500 sm:flex-row sm:items-center">
             Booking
 
             <select
@@ -148,7 +148,7 @@ function AdminBookingsPage() {
                   page: null,
                 })
               }
-              className="focus-ring rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700"
+              className="focus-ring w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 sm:w-auto"
             >
               {bookingStatuses.map(([value, label]) => (
                 <option key={value || 'all'} value={value}>
@@ -158,7 +158,7 @@ function AdminBookingsPage() {
             </select>
           </label>
 
-          <label className="flex items-center gap-2 text-xs font-extrabold text-stone-500">
+          <label className="flex flex-col gap-2 text-xs font-extrabold text-stone-500 sm:flex-row sm:items-center">
             Payment
 
             <select
@@ -169,7 +169,7 @@ function AdminBookingsPage() {
                   page: null,
                 })
               }
-              className="focus-ring rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700"
+              className="focus-ring w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 sm:w-auto"
             >
               {paymentStatuses.map(([value, label]) => (
                 <option key={value} value={value}>
@@ -310,7 +310,7 @@ function AdminBookingCard({
     <article className="grid gap-5 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-[180px_1fr] md:p-5">
       <PropertyImage
         property={property}
-        className="aspect-[4/3] w-full rounded-xl md:aspect-square"
+        className="aspect-[2/1] w-full rounded-xl md:aspect-square"
         sizes="180px"
       />
 

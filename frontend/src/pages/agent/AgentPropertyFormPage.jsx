@@ -583,7 +583,7 @@ function AgentPropertyFormPage() {
       </Link>
       <div className="mb-6">
         <p className="eyebrow">{isEdit ? 'Edit listing' : 'New listing'}</p>
-        <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900">
+        <h2 className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
           {isEdit ? property.title : 'Create a property'}
         </h2>
       </div>

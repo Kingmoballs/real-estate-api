@@ -177,7 +177,7 @@ function AgentReviewCard({
     <article className="grid gap-5 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-[180px_1fr] md:p-5">
       <PropertyImage
         property={property}
-        className="aspect-[4/3] w-full rounded-xl md:aspect-square"
+        className="aspect-[2/1] w-full rounded-xl md:aspect-square"
         sizes="180px"
       />
 
@@ -478,7 +478,7 @@ function AgentReviewsPage() {
           Customer feedback
         </p>
 
-        <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900">
+        <h2 className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
           Property reviews
         </h2>
 
@@ -489,8 +489,8 @@ function AgentReviewsPage() {
         </p>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3 rounded-2xl border border-stone-200 bg-white p-4">
-        <label className="text-xs font-extrabold text-stone-500">
+      <div className="mt-5 grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:mt-6 sm:flex sm:flex-wrap">
+        <label className="flex flex-col gap-2 text-xs font-extrabold text-stone-500 sm:block">
           Status
 
           <select
@@ -502,7 +502,7 @@ function AgentReviewsPage() {
                 page: null,
               })
             }
-            className="focus-ring ml-2 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700"
+            className="focus-ring w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 sm:ml-2 sm:w-auto"
           >
             {reviewStatuses.map(
               ([value, label]) => (
@@ -517,7 +517,7 @@ function AgentReviewsPage() {
           </select>
         </label>
 
-        <label className="text-xs font-extrabold text-stone-500">
+        <label className="flex flex-col gap-2 text-xs font-extrabold text-stone-500 sm:block">
           Rating
 
           <select
@@ -529,7 +529,7 @@ function AgentReviewsPage() {
                 page: null,
               })
             }
-            className="focus-ring ml-2 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700"
+            className="focus-ring w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 sm:ml-2 sm:w-auto"
           >
             {ratingOptions.map(
               ([value, label]) => (

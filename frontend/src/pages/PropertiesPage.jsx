@@ -159,10 +159,10 @@ function PropertiesPage() {
     : 0
 
   return (
-    <main className="page-shell py-10 sm:py-14">
+    <main className="page-shell py-8 sm:py-14">
       <div className="max-w-2xl">
         <p className="eyebrow">Property marketplace</p>
-        <h1 className="mt-3 text-4xl font-black tracking-[-0.05em] text-stone-900 sm:text-5xl">
+        <h1 className="mt-3 text-3xl font-black tracking-[-0.05em] text-stone-900 sm:text-5xl">
           Find your next place
         </h1>
         <p className="mt-4 leading-7 text-stone-500">
@@ -171,8 +171,8 @@ function PropertiesPage() {
       </div>
 
       <section className="mt-8 rounded-[1.5rem] border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-2 flex items-center gap-2 px-2 text-sm font-bold text-stone-500">
+        <div className="hide-scrollbar -mx-4 flex snap-x snap-mandatory items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+          <span className="mr-1 flex shrink-0 items-center gap-2 px-1 text-sm font-bold text-stone-500 sm:mr-2 sm:px-2">
             <SlidersHorizontal size={17} /> Listing type
           </span>
           {listingFilters.map((filter) => {
@@ -185,7 +185,7 @@ function PropertiesPage() {
                 type="button"
                 onClick={() => updateParams({ listingType: filter.value })}
                 className={
-                  'focus-ring cursor-pointer rounded-full px-4 py-2 text-sm font-extrabold transition ' +
+                  'focus-ring shrink-0 snap-start cursor-pointer rounded-full px-4 py-2 text-sm font-extrabold transition ' +
                   (isSelected
                     ? 'bg-emerald-950 text-white'
                     : 'bg-stone-100 text-stone-600 hover:bg-stone-200')
@@ -200,9 +200,9 @@ function PropertiesPage() {
         <form
           key={searchParams.toString()}
           onSubmit={handleFilterSubmit}
-          className="mt-5 grid gap-3 border-t border-stone-100 pt-5 md:grid-cols-2 xl:grid-cols-[1.7fr_1fr_0.75fr_0.75fr_auto]"
+          className="mt-5 grid grid-cols-2 gap-3 border-t border-stone-100 pt-5 md:grid-cols-2 xl:grid-cols-[1.7fr_1fr_0.75fr_0.75fr_auto]"
         >
-          <label className="relative">
+          <label className="relative col-span-2 md:col-span-1">
             <span className="sr-only">Search properties</span>
             <Search
               size={17}
@@ -262,7 +262,7 @@ function PropertiesPage() {
 
           <button
             type="submit"
-            className="focus-ring h-12 cursor-pointer rounded-xl bg-amber-600 px-5 text-sm font-black text-white transition hover:bg-amber-700"
+            className="focus-ring h-12 cursor-pointer rounded-xl bg-amber-600 px-3 text-sm font-black text-white transition hover:bg-amber-700"
           >
             Apply filters
           </button>
@@ -273,7 +273,7 @@ function PropertiesPage() {
           />
         </form>
 
-        <div className="mt-3 flex flex-wrap items-center gap-3">
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
           <label className="flex items-center gap-2 text-xs font-bold text-stone-500">
             Bedrooms
             <select
@@ -304,12 +304,12 @@ function PropertiesPage() {
               ))}
             </select>
           </label>
-          <label className="ml-auto flex items-center gap-2 text-xs font-bold text-stone-500">
+          <label className="col-span-2 flex items-center gap-2 text-xs font-bold text-stone-500 sm:ml-auto">
             Sort
             <select
               value={searchParams.get('sort') || 'newest'}
               onChange={(event) => updateParams({ sort: event.target.value })}
-              className="focus-ring rounded-lg border border-stone-300 bg-white px-2.5 py-2 text-sm text-stone-700"
+              className="focus-ring min-w-0 flex-1 rounded-lg border border-stone-300 bg-white px-2.5 py-2 text-sm text-stone-700 sm:flex-none"
             >
               <option value="newest">Newest</option>
               <option value="priceAsc">Price: low to high</option>
@@ -321,7 +321,7 @@ function PropertiesPage() {
             <button
               type="button"
               onClick={() => setSearchParams({})}
-              className="focus-ring flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-2 text-xs font-extrabold text-red-700 hover:bg-red-50"
+              className="focus-ring col-span-2 flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-extrabold text-red-700 hover:bg-red-50 sm:justify-start"
             >
               <RotateCcw size={14} /> Clear filters
             </button>

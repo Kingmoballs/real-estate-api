@@ -39,7 +39,7 @@ function InspectionRequestForm({ propertyId }) {
 
   if (!user) {
     return (
-      <div className="rounded-[1.6rem] border border-amber-200 bg-amber-50 p-6">
+      <div className="rounded-[1.6rem] border border-amber-200 bg-amber-50 p-5 sm:p-6">
         <CalendarDays className="text-amber-700" size={24} />
         <h2 className="mt-4 text-lg font-black text-stone-900">
           Request an inspection
@@ -60,7 +60,7 @@ function InspectionRequestForm({ propertyId }) {
 
   if (user.role !== 'user') {
     return (
-      <div className="rounded-[1.6rem] border border-stone-200 bg-white p-6 text-sm leading-6 text-stone-500">
+      <div className="rounded-[1.6rem] border border-stone-200 bg-white p-5 text-sm leading-6 text-stone-500 sm:p-6">
         Inspection requests are available from regular customer accounts.
       </div>
     )
@@ -85,7 +85,7 @@ function InspectionRequestForm({ propertyId }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[1.6rem] border border-stone-200 bg-white p-6 shadow-sm"
+      className="rounded-[1.6rem] border border-stone-200 bg-white p-5 shadow-sm sm:p-6"
     >
       <CalendarDays className="text-amber-700" size={24} />
       <h2 className="mt-4 text-lg font-black text-stone-900">

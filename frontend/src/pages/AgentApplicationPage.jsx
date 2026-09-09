@@ -317,14 +317,14 @@ function AgentApplicationPage() {
 
   if (user.role === 'admin') {
     return (
-      <main className="page-shell py-12 sm:py-16">
-        <section className="mx-auto max-w-2xl rounded-[2rem] border border-stone-200 bg-white p-8 text-center shadow-sm sm:p-10">
+      <main className="page-shell py-8 sm:py-16">
+        <section className="mx-auto max-w-2xl rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-sm sm:rounded-[2rem] sm:p-10">
           <ShieldCheck
             size={34}
             className="mx-auto text-stone-800"
           />
 
-          <h1 className="mt-5 text-3xl font-black text-stone-900">
+          <h1 className="mt-5 text-2xl font-black text-stone-900 sm:text-3xl">
             Administrator account
           </h1>
 
@@ -349,8 +349,8 @@ function AgentApplicationPage() {
 
   if (user.role === 'agent') {
     return (
-      <main className="page-shell py-12 sm:py-16">
-        <section className="mx-auto max-w-2xl rounded-[2rem] border border-emerald-200 bg-emerald-50 p-8 text-center shadow-sm sm:p-10">
+      <main className="page-shell py-8 sm:py-16">
+        <section className="mx-auto max-w-2xl rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center shadow-sm sm:rounded-[2rem] sm:p-10">
           <BadgeCheck
             size={38}
             className="mx-auto text-emerald-700"
@@ -360,7 +360,7 @@ function AgentApplicationPage() {
             Agent access active
           </p>
 
-          <h1 className="mt-2 text-3xl font-black text-stone-900">
+          <h1 className="mt-2 text-2xl font-black text-stone-900 sm:text-3xl">
             Your agent account is ready
           </h1>
 
@@ -384,8 +384,8 @@ function AgentApplicationPage() {
   }
 
   return (
-    <main className="page-shell py-10 sm:py-14">
-      <section className="rounded-[2rem] bg-emerald-950 px-6 py-8 text-white sm:px-10 sm:py-10">
+    <main className="page-shell py-8 sm:py-14">
+      <section className="rounded-2xl bg-emerald-950 px-5 py-6 text-white sm:rounded-[2rem] sm:px-10 sm:py-10">
         <span className="grid size-12 place-items-center rounded-xl bg-white/10">
           <BriefcaseBusiness
             size={23}
@@ -396,7 +396,7 @@ function AgentApplicationPage() {
           Agent onboarding
         </p>
 
-        <h1 className="mt-2 max-w-2xl text-3xl font-black tracking-[-0.045em] sm:text-4xl">
+        <h1 className="mt-2 max-w-2xl text-2xl font-black tracking-[-0.045em] sm:text-4xl">
           Apply to list and manage
           properties on Haven
         </h1>
@@ -580,7 +580,7 @@ function AgentApplicationPage() {
               onSubmit={handleSubmit(
                 handleApplicationSubmit,
               )}
-              className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+            className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-8"
             >
               {application?.status ===
                 'rejected' && (

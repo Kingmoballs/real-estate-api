@@ -49,7 +49,7 @@ function PropertyInquiryForm({
 
   if (!user) {
     return (
-      <section className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-6">
+      <section className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-5 sm:p-6">
         <MessageCircle
           size={24}
           className="text-emerald-800"
@@ -77,7 +77,7 @@ function PropertyInquiryForm({
 
   if (user.role !== 'user') {
     return (
-      <section className="rounded-[1.6rem] border border-stone-200 bg-white p-6">
+      <section className="rounded-[1.6rem] border border-stone-200 bg-white p-5 sm:p-6">
         <MessageCircle
           size={24}
           className="text-stone-400"
@@ -138,7 +138,7 @@ function PropertyInquiryForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-6 shadow-sm"
+      className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-5 shadow-sm sm:p-6"
     >
       <MessageCircle
         size={24}

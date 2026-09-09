@@ -56,13 +56,13 @@ function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-[#f7f5ef]/95 backdrop-blur-xl">
-      <div className="page-shell flex h-18 items-center justify-between gap-6">
+      <div className="page-shell flex h-16 items-center justify-between gap-3 sm:h-18 sm:gap-6">
         <Link
           to="/"
           className="focus-ring flex items-center gap-2.5"
           onClick={closeMenu}
         >
-          <span className="grid size-10 place-items-center rounded-xl bg-emerald-950 text-white shadow-sm">
+          <span className="grid size-9 place-items-center rounded-xl bg-emerald-950 text-white shadow-sm sm:size-10">
             <Building2
               size={21}
               strokeWidth={2.2}
@@ -182,7 +182,7 @@ function AppHeader() {
       {isOpen && (
         <nav
           id="mobile-navigation"
-          className="border-t border-stone-200 bg-[#f7f5ef] px-4 py-5 md:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-stone-200 bg-[#f7f5ef] px-4 py-4 md:hidden"
           aria-label="Mobile navigation"
         >
           <div className="mx-auto flex max-w-lg flex-col gap-2">

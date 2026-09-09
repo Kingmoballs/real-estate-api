@@ -68,6 +68,15 @@ a {
   outline-offset: 3px;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .leaflet-container {
   z-index: 0;
   font-family: inherit;
@@ -147,5 +156,13 @@ a {
 @media (max-width: 420px) {
   .booking-calendar .rdp-day_button {
     font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  select,
+  textarea {
+    font-size: 1rem !important;
   }
 }

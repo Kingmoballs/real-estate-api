@@ -85,7 +85,7 @@ function AdminPropertiesPage() {
       <div>
         <p className="eyebrow">Marketplace moderation</p>
 
-        <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-stone-900">
+        <h2 className="mt-2 text-2xl font-black tracking-[-0.045em] text-stone-900 sm:text-3xl">
           Property reviews
         </h2>
 
@@ -95,7 +95,7 @@ function AdminPropertiesPage() {
         </p>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="mt-5 grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:mt-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
         <span className="flex items-center gap-2 text-sm font-black text-stone-700">
           <Search size={18} className="text-amber-700" />
           Property moderation queue
@@ -206,7 +206,7 @@ function AdminPropertiesPage() {
             >
               <PropertyImage
                 property={property}
-                className="aspect-[4/3] w-full rounded-xl md:aspect-square"
+                className="aspect-[2/1] w-full rounded-xl md:aspect-square"
                 sizes="190px"
               />
 
