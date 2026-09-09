@@ -1,33 +1,78 @@
+import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import AppShell from './components/layout/AppShell.jsx'
-import AgentWorkspaceShell from './components/agent/AgentWorkspaceShell.jsx'
 import ProtectedRoute from './components/routing/ProtectedRoute.jsx'
-import AccountPage from './pages/AccountPage.jsx'
-import BookingsPage from './pages/BookingsPage.jsx'
-import AdminWorkspaceShell from './components/admin/AdminWorkspaceShell.jsx'
-import AdminAgentApplicationsPage from './pages/admin/AdminAgentApplicationsPage.jsx'
-import HomePage from './pages/HomePage.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import NotFoundPage from './pages/NotFoundPage.jsx'
-import PropertiesPage from './pages/PropertiesPage.jsx'
-import PropertyDetailsPage from './pages/PropertyDetailsPage.jsx'
-import RegisterPage from './pages/RegisterPage.jsx'
-import AgentBookingsPage from './pages/agent/AgentBookingsPage.jsx'
-import AgentDashboardPage from './pages/agent/AgentDashboardPage.jsx'
-import AgentInspectionsPage from './pages/agent/AgentInspectionsPage.jsx'
-import AgentPropertiesPage from './pages/agent/AgentPropertiesPage.jsx'
-import AgentPropertyFormPage from './pages/agent/AgentPropertyFormPage.jsx'
-import AgentReviewsPage from './pages/agent/AgentReviewsPage.jsx'
-import AgentApplicationPage from './pages/AgentApplicationPage.jsx'
-import AdminPropertiesPage from './pages/admin/AdminPropertiesPage.jsx'
-import AdminPropertyReviewPage from './pages/admin/AdminPropertyReviewPage.jsx'
-import AdminInspectionsPage from './pages/admin/AdminInspectionsPage.jsx'
-import AdminBookingsPage from './pages/admin/AdminBookingsPage.jsx'
-import AdminReviewsPage from './pages/admin/AdminReviewsPage.jsx'
-import MessagesPage from './pages/MessagesPage.jsx'
-import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
-import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
-import ChangePasswordPage from './pages/ChangePasswordPage.jsx'
+
+const AgentWorkspaceShell = lazy(() =>
+  import('./components/agent/AgentWorkspaceShell.jsx'),
+)
+const AdminWorkspaceShell = lazy(() =>
+  import('./components/admin/AdminWorkspaceShell.jsx'),
+)
+
+const AccountPage = lazy(() => import('./pages/AccountPage.jsx'))
+const AgentApplicationPage = lazy(() =>
+  import('./pages/AgentApplicationPage.jsx'),
+)
+const BookingsPage = lazy(() => import('./pages/BookingsPage.jsx'))
+const ChangePasswordPage = lazy(() =>
+  import('./pages/ChangePasswordPage.jsx'),
+)
+const ForgotPasswordPage = lazy(() =>
+  import('./pages/ForgotPasswordPage.jsx'),
+)
+const HomePage = lazy(() => import('./pages/HomePage.jsx'))
+const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
+const MessagesPage = lazy(() => import('./pages/MessagesPage.jsx'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
+const PropertiesPage = lazy(() =>
+  import('./pages/PropertiesPage.jsx'),
+)
+const PropertyDetailsPage = lazy(() =>
+  import('./pages/PropertyDetailsPage.jsx'),
+)
+const RegisterPage = lazy(() => import('./pages/RegisterPage.jsx'))
+const ResetPasswordPage = lazy(() =>
+  import('./pages/ResetPasswordPage.jsx'),
+)
+
+const AgentBookingsPage = lazy(() =>
+  import('./pages/agent/AgentBookingsPage.jsx'),
+)
+const AgentDashboardPage = lazy(() =>
+  import('./pages/agent/AgentDashboardPage.jsx'),
+)
+const AgentInspectionsPage = lazy(() =>
+  import('./pages/agent/AgentInspectionsPage.jsx'),
+)
+const AgentPropertiesPage = lazy(() =>
+  import('./pages/agent/AgentPropertiesPage.jsx'),
+)
+const AgentPropertyFormPage = lazy(() =>
+  import('./pages/agent/AgentPropertyFormPage.jsx'),
+)
+const AgentReviewsPage = lazy(() =>
+  import('./pages/agent/AgentReviewsPage.jsx'),
+)
+
+const AdminAgentApplicationsPage = lazy(() =>
+  import('./pages/admin/AdminAgentApplicationsPage.jsx'),
+)
+const AdminBookingsPage = lazy(() =>
+  import('./pages/admin/AdminBookingsPage.jsx'),
+)
+const AdminInspectionsPage = lazy(() =>
+  import('./pages/admin/AdminInspectionsPage.jsx'),
+)
+const AdminPropertiesPage = lazy(() =>
+  import('./pages/admin/AdminPropertiesPage.jsx'),
+)
+const AdminPropertyReviewPage = lazy(() =>
+  import('./pages/admin/AdminPropertyReviewPage.jsx'),
+)
+const AdminReviewsPage = lazy(() =>
+  import('./pages/admin/AdminReviewsPage.jsx'),
+)
 
 function App() {
   return (

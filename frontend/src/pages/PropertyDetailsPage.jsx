@@ -20,6 +20,7 @@ import PropertyGallery from '../components/property/PropertyGallery.jsx'
 import SavePropertyButton from '../components/property/SavePropertyButton.jsx'
 import PropertyReviews from '../components/property/PropertyReviews.jsx'
 import PropertyInquiryForm from '../components/property/PropertyInquiryForm.jsx'
+import PropertyLocationMap from '../components/maps/PropertyLocationMap.jsx'
 import { useProperty } from '../features/properties/propertyApi.js'
 import {
   formatAmenity,
@@ -228,6 +229,11 @@ function PropertyDetailsPage() {
               </div>
             )}
           </div>
+
+          <PropertyLocationMap
+            property={property}
+            locationLabel={propertyLocation}
+          />
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-24">

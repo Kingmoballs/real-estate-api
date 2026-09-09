@@ -3,6 +3,21 @@ import axios from 'axios'
 const unsafeMethods = new Set(['post', 'put', 'patch', 'delete'])
 let csrfToken = null
 let refreshRequest = null
+let apiUnavailable = false
+
+const setApiAvailability = (isAvailable) => {
+  if (typeof window === 'undefined') return
+
+  if (isAvailable && apiUnavailable) {
+    apiUnavailable = false
+    window.dispatchEvent(new Event('haven:api-available'))
+  }
+
+  if (!isAvailable && !apiUnavailable) {
+    apiUnavailable = true
+    window.dispatchEvent(new Event('haven:api-unavailable'))
+  }
+}
 
 const api = axios.create({
   baseURL:
@@ -38,8 +53,13 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    setApiAvailability(true)
+    return response
+  },
   async (error) => {
+    setApiAvailability(Boolean(error.response))
+
     const originalRequest = error.config
     const shouldRefresh =
       error.response?.status === 401 &&

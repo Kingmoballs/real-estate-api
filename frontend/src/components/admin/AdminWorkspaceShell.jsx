@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import {
   Building2,
   CalendarCheck2,
@@ -7,6 +8,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
+import RouteLoadingFallback from '../routing/RouteLoadingFallback.jsx'
 
 const workspaceLinks = [
   {
@@ -81,7 +83,9 @@ function AdminWorkspaceShell() {
       </nav>
 
       <div className="mt-7">
-        <Outlet />
+        <Suspense fallback={<RouteLoadingFallback compact />}>
+          <Outlet />
+        </Suspense>
       </div>
     </main>
   )

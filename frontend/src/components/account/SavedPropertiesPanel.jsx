@@ -50,7 +50,7 @@ function SavedPropertiesPanel({ page, onPageChange }) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3 xl:gap-6">
         {Array.from({ length: 3 }, (_, index) => (
           <PropertyCardSkeleton key={index} />
         ))}
@@ -94,7 +94,7 @@ function SavedPropertiesPanel({ page, onPageChange }) {
     <>
       <div
         className={
-          'grid gap-6 transition-opacity md:grid-cols-2 xl:grid-cols-3 ' +
+          'grid grid-cols-2 gap-3 transition-opacity sm:gap-5 xl:grid-cols-3 xl:gap-6 ' +
           (isFetching ? 'opacity-60' : '')
         }
       >

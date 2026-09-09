@@ -229,6 +229,7 @@ const publicPropertyQuerySchema = Joi.object({
     bedrooms: Joi.number().integer().min(0),
     bathrooms: Joi.number().integer().min(0),
     parkingSpaces: Joi.number().integer().min(0),
+    minRating: Joi.number().min(0).max(5),
     latitude: Joi.number().min(-90).max(90),
     longitude: Joi.number().min(-180).max(180),
     radiusKm: Joi.number().positive().max(200),

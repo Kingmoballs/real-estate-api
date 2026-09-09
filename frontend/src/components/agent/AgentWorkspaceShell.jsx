@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import {
   Building2,
   CalendarCheck2,
@@ -8,6 +9,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
+import RouteLoadingFallback from '../routing/RouteLoadingFallback.jsx'
 
 const workspaceLinks = [
   { to: '/agent', label: 'Overview', icon: LayoutDashboard, end: true },
@@ -62,7 +64,9 @@ function AgentWorkspaceShell() {
       </nav>
 
       <div className="mt-7">
-        <Outlet />
+        <Suspense fallback={<RouteLoadingFallback compact />}>
+          <Outlet />
+        </Suspense>
       </div>
     </main>
   )

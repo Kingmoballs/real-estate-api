@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 import ConfirmAction from '../../components/activity/ConfirmAction.jsx'
 import ReasonAction from '../../components/activity/ReasonAction.jsx'
 import StatusBadge from '../../components/activity/StatusBadge.jsx'
+import PropertyLocationMap from '../../components/maps/PropertyLocationMap.jsx'
 import PropertyGallery from '../../components/property/PropertyGallery.jsx'
 import { formatDateTime } from '../../features/activity/activityFormatters.js'
 import {
@@ -110,6 +111,8 @@ function AdminPropertyReviewPage() {
     email: property.agentEmail,
     phone: property.agentPhone,
   }
+  const locationLabel =
+    getPropertyLocation(property) || 'Location not provided'
 
   const propertyFacts = [
     {
@@ -212,7 +215,7 @@ function AdminPropertyReviewPage() {
 
           <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-stone-500">
             <MapPin size={16} />
-            {getPropertyLocation(property) || 'Location not provided'}
+            {locationLabel}
           </p>
         </div>
 
@@ -306,23 +309,29 @@ function AdminPropertyReviewPage() {
               <Detail label="Postal code" value={property.address?.postalCode} />
             </dl>
 
-            {hasCoordinates && (
-              <div className="mt-5 rounded-xl bg-stone-50 p-4 text-xs text-stone-600">
-                <p>
-                  Latitude: <strong>{coordinates[1]}</strong>
-                </p>
+            {!hasCoordinates && (
+              <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+                <MapPin className="mt-0.5 shrink-0" size={18} />
 
-                <p className="mt-1">
-                  Longitude: <strong>{coordinates[0]}</strong>
-                </p>
-
-                <p className="mt-2 leading-5 text-stone-500">
-                  These coordinates will later be displayed through the Google
-                  Maps integration.
-                </p>
+                <div>
+                  <p className="font-black">Map location unavailable</p>
+                  <p className="mt-1 leading-6 text-amber-900/80">
+                    This listing does not have a saved map pin. Ask the agent to
+                    edit the property and select its location with the map picker
+                    before approval.
+                  </p>
+                </div>
               </div>
             )}
           </section>
+
+          {hasCoordinates && (
+            <PropertyLocationMap
+              property={property}
+              locationLabel={locationLabel}
+              className=""
+            />
+          )}
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-24">

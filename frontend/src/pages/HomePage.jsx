@@ -1,4 +1,4 @@
-import { ArrowRight, BadgeCheck, MapPin, Search, ShieldCheck } from 'lucide-react'
+import { ArrowRight, BadgeCheck, MapPin, Search } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PropertyCard from '../components/property/PropertyCard.jsx'
@@ -20,7 +20,7 @@ function HomePage() {
     data: featuredData,
     isError: featuredError,
     isLoading: featuredLoading,
-  } = useProperties({ limit: 3, sort: 'newest' })
+  } = useProperties({ limit: 4, sort: 'newest' })
   const featuredProperties = featuredData?.properties || []
 
   const handleSearch = (event) => {
@@ -36,7 +36,8 @@ function HomePage() {
       <section className="page-shell grid gap-8 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:py-14">
         <div className="flex flex-col justify-center rounded-[2rem] bg-emerald-950 px-6 py-10 text-white sm:px-10 lg:px-12 lg:py-14">
           <span className="mb-5 flex w-fit items-center gap-2 rounded-full border border-emerald-700 bg-emerald-900/70 px-3 py-1.5 text-xs font-bold text-emerald-100">
-            <BadgeCheck size={15} /> Verified listings. Clear decisions.
+            <BadgeCheck size={15} />
+            Freshly verified · New homes added every week
           </span>
           <h1 className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.055em] sm:text-5xl lg:text-[4rem]">
             Find a place that fits the way you want to live.
@@ -86,20 +87,13 @@ function HomePage() {
           </form>
         </div>
 
-        <div className="relative min-h-[390px] overflow-hidden rounded-[2rem] bg-stone-300 lg:min-h-0">
+        <div className="relative hidden min-h-[390px] overflow-hidden rounded-[2rem] bg-stone-300 lg:block lg:min-h-0">
           <img
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=86"
             alt="Modern luxury home exterior"
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/70 via-transparent to-transparent" />
-          <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between gap-4 rounded-2xl border border-white/20 bg-white/90 p-4 shadow-xl backdrop-blur-md sm:bottom-7 sm:left-7 sm:right-7">
-            <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-amber-700">Freshly verified</p>
-              <p className="mt-1 font-black text-emerald-950">New homes added every week</p>
-            </div>
-            <ShieldCheck className="shrink-0 text-emerald-800" size={30} />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/35 via-transparent to-transparent" />
         </div>
       </section>
 
@@ -120,17 +114,21 @@ function HomePage() {
         </div>
 
         {featuredLoading && (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 3 }, (_, index) => (
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+            {Array.from({ length: 4 }, (_, index) => (
               <PropertyCardSkeleton key={index} />
             ))}
           </div>
         )}
 
         {!featuredLoading && !featuredError && featuredProperties.length > 0 && (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
             {featuredProperties.map((property) => (
-              <PropertyCard key={getPropertyId(property)} property={property} />
+              <PropertyCard
+                key={getPropertyId(property)}
+                property={property}
+                compact
+              />
             ))}
           </div>
         )}

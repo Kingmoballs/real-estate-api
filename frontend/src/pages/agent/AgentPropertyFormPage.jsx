@@ -8,9 +8,10 @@ import {
   Send,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
+import PropertyLocationPicker from '../../components/maps/PropertyLocationPicker.jsx'
 import {
   amenities,
   emptyPropertyValues,
@@ -66,12 +67,15 @@ function PropertyEditor({ property }) {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(propertySchema),
     defaultValues: initialValues,
   })
   const isSaving = createMutation.isPending || updateMutation.isPending
+  const selectedLatitude = useWatch({ control, name: 'latitude' })
+  const selectedLongitude = useWatch({ control, name: 'longitude' })
   const pricePeriods =
     listingType === 'shortlet'
       ? [['night', 'Per night']]
@@ -125,6 +129,31 @@ function PropertyEditor({ property }) {
     }
 
     setFiles(selectedFiles)
+  }
+
+  const handleLocationChange = (location) => {
+    const formFields = [
+      'location',
+      'streetAddress',
+      'city',
+      'state',
+      'lga',
+      'country',
+      'postalCode',
+      'latitude',
+      'longitude',
+    ]
+
+    formFields.forEach((field) => {
+      const value = location[field]
+
+      if (value === undefined || value === null || value === '') return
+
+      setValue(field, value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    })
   }
 
   const saveProperty = async (values, submissionAction) => {
@@ -253,9 +282,24 @@ function PropertyEditor({ property }) {
 
       <FormSection
         title="Location"
-        description="Structured address fields power marketplace filters. Coordinates are optional and can be supplied by a map picker later."
+        description="Search for the address or place the pin directly on the map. The coordinates are saved automatically."
       >
-        <div className="grid gap-5 sm:grid-cols-2">
+        <PropertyLocationPicker
+          latitude={selectedLatitude}
+          longitude={selectedLongitude}
+          onLocationChange={handleLocationChange}
+        />
+
+        <input
+          type="hidden"
+          {...register('latitude', numberInputOptions)}
+        />
+        <input
+          type="hidden"
+          {...register('longitude', numberInputOptions)}
+        />
+
+        <div className="mt-6 grid gap-5 border-t border-stone-100 pt-6 sm:grid-cols-2">
           <label className={labelClass + ' sm:col-span-2'}>
             Display location
             <input
@@ -291,27 +335,9 @@ function PropertyEditor({ property }) {
             Postal code
             <input {...register('postalCode')} className={inputClass} />
           </label>
-          <div />
-          <label className={labelClass}>
-            Latitude
-            <input
-              type="number"
-              step="any"
-              {...register('latitude', numberInputOptions)}
-              className={inputClass}
-            />
-            <FieldError error={errors.latitude} />
-          </label>
-          <label className={labelClass}>
-            Longitude
-            <input
-              type="number"
-              step="any"
-              {...register('longitude', numberInputOptions)}
-              className={inputClass}
-            />
-            <FieldError error={errors.longitude} />
-          </label>
+          <div className="sm:col-span-2">
+            <FieldError error={errors.latitude || errors.longitude} />
+          </div>
         </div>
       </FormSection>
 

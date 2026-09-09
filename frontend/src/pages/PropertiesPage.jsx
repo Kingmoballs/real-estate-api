@@ -7,6 +7,8 @@ import {
   SlidersHorizontal,
 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import AdvancedPropertyFilters from '../components/property/AdvancedPropertyFilters.jsx'
 import PropertyCard from '../components/property/PropertyCard.jsx'
 import PropertyCardSkeleton from '../components/property/PropertyCardSkeleton.jsx'
 import { useProperties } from '../features/properties/propertyApi.js'
@@ -40,6 +42,16 @@ const queryKeys = [
   'maxPrice',
   'bedrooms',
   'bathrooms',
+  'amenities',
+  'furnishingStatus',
+  'sizeUnit',
+  'minSize',
+  'maxSize',
+  'parkingSpaces',
+  'minRating',
+  'latitude',
+  'longitude',
+  'radiusKm',
   'sort',
   'page',
 ]
@@ -83,12 +95,52 @@ function PropertiesPage() {
 
   const handleFilterSubmit = (event) => {
     event.preventDefault()
+
     const formData = new FormData(event.currentTarget)
+    const getValue = (name) =>
+      formData.get(name)?.toString().trim() || ''
+
+    const minPrice = getValue('minPrice')
+    const maxPrice = getValue('maxPrice')
+    const minSize = getValue('minSize')
+    const maxSize = getValue('maxSize')
+
+    if (
+      minPrice &&
+      maxPrice &&
+      Number(minPrice) > Number(maxPrice)
+    ) {
+      toast.error(
+        'Minimum price cannot be greater than maximum price.',
+      )
+      return
+    }
+
+    if (
+      minSize &&
+      maxSize &&
+      Number(minSize) > Number(maxSize)
+    ) {
+      toast.error(
+        'Minimum size cannot be greater than maximum size.',
+      )
+      return
+    }
 
     updateParams({
-      search: formData.get('search')?.toString().trim(),
-      minPrice: formData.get('minPrice')?.toString().trim(),
-      maxPrice: formData.get('maxPrice')?.toString().trim(),
+      search: getValue('search'),
+      minPrice,
+      maxPrice,
+      furnishingStatus: getValue('furnishingStatus'),
+      minSize,
+      maxSize,
+      sizeUnit: getValue('sizeUnit'),
+      parkingSpaces: getValue('parkingSpaces'),
+      minRating: getValue('minRating'),
+      amenities: formData
+        .getAll('amenities')
+        .map(String)
+        .join(','),
     })
   }
 
@@ -214,6 +266,11 @@ function PropertiesPage() {
           >
             Apply filters
           </button>
+
+          <AdvancedPropertyFilters
+            searchParams={searchParams}
+            updateParams={updateParams}
+          />
         </form>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -294,7 +351,7 @@ function PropertiesPage() {
       )}
 
       {isLoading && (
-        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3 xl:gap-6">
           {Array.from({ length: 6 }, (_, index) => (
             <PropertyCardSkeleton key={index} />
           ))}
@@ -323,7 +380,7 @@ function PropertiesPage() {
       {!isLoading && !isError && properties.length > 0 && (
         <div
           className={
-            'mt-6 grid gap-6 transition-opacity md:grid-cols-2 xl:grid-cols-3 ' +
+            'mt-6 grid grid-cols-2 gap-3 transition-opacity sm:gap-5 xl:grid-cols-3 xl:gap-6 ' +
             (isFetching ? 'opacity-60' : 'opacity-100')
           }
         >

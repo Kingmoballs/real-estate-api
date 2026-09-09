@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import App from './App.jsx'
+import AppErrorBoundary from './components/errors/AppErrorBoundary.jsx'
 import AuthProvider from './features/auth/AuthProvider.jsx'
 import '@daypicker/react/style.css'
+import 'leaflet/dist/leaflet.css'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -22,10 +24,12 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthProvider>
-          <App />
-          <Toaster richColors position="top-right" />
-        </AuthProvider>
+        <AppErrorBoundary>
+          <AuthProvider>
+            <App />
+            <Toaster richColors position="top-right" />
+          </AuthProvider>
+        </AppErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

@@ -182,6 +182,7 @@ exports.getPublicProperties = async (query) => {
         bedrooms,
         bathrooms,
         parkingSpaces,
+        minRating,
         latitude,
         longitude,
         radiusKm,
@@ -249,6 +250,10 @@ exports.getPublicProperties = async (query) => {
     }
     if (parkingSpaces !== undefined) {
         filters.parkingSpaces = { $gte: parkingSpaces };
+    }
+
+    if (minRating !== undefined) {
+        filters.ratingAverage = { $gte: minRating };
     }
 
     if (

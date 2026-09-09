@@ -29,6 +29,7 @@ describe("property public search service", () => {
             furnishingStatus: "furnished",
             sizeUnit: "sqm",
             minSize: 100,
+            minRating: 4,
             latitude: 6.4474,
             longitude: 3.4723,
             radiusKm: 10,
@@ -48,6 +49,7 @@ describe("property public search service", () => {
                     furnishingStatus: "furnished",
                     "size.unit": "sqm",
                     "size.value": { $gte: 100 },
+                    ratingAverage: { $gte: 4 },
                     geoLocation: {
                         $geoWithin: {
                             $centerSphere: [

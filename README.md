@@ -57,6 +57,7 @@ registration.
 - Resend
 - Joi
 - Jest and Supertest
+- React 19, Vite, Tailwind CSS, TanStack Query, and Playwright
 
 ## Requirements
 
@@ -172,6 +173,12 @@ backend URL.
 The Resend testing sender can deliver only within Resend's testing
 restrictions. Replace it with a sender on a verified domain before paid
 production use.
+
+The React application lives in [`frontend`](frontend). It has independent
+lint, unit, browser, build, and deployment-environment checks documented in
+[`frontend/README.md`](frontend/README.md). The existing Render Blueprint
+deploys only the API; choosing and configuring a free static frontend host is
+a separate deployment step.
 
 ## Current product boundary
 

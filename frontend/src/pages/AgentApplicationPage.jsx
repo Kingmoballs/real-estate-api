@@ -14,7 +14,7 @@ import {
   useState,
 } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import {
   Link,
   useNavigate,
@@ -216,10 +216,10 @@ function AgentApplicationPage() {
     applicationQuery.data
 
   const {
+    control,
     register,
     handleSubmit,
     reset,
-    watch,
     formState: {
       errors,
       isSubmitting,
@@ -232,11 +232,16 @@ function AgentApplicationPage() {
       emptyAgentApplicationValues,
   })
 
-  const businessType = watch(
-    'businessType',
-  )
+  const businessType = useWatch({
+    control,
+    name: 'businessType',
+  })
 
-  const bio = watch('bio') || ''
+  const bio =
+    useWatch({
+      control,
+      name: 'bio',
+    }) || ''
 
   useEffect(() => {
     if (
