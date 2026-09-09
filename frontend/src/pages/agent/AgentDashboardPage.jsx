@@ -16,6 +16,12 @@ const ranges = [
   ['30days', '30 days'],
 ]
 
+const summaryGridClass =
+  'grid grid-cols-3 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm sm:gap-4 sm:overflow-visible sm:rounded-none sm:border-0 sm:bg-transparent sm:shadow-none'
+
+const summaryCardClass =
+  'min-w-0 border-l border-stone-200 px-2 py-4 text-center first:border-l-0 sm:rounded-2xl sm:border sm:bg-white sm:p-6 sm:text-left sm:shadow-sm sm:first:border-l'
+
 function AgentDashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const range = searchParams.get('range') || '30days'
@@ -24,11 +30,11 @@ function AgentDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className={summaryGridClass} aria-label="Loading agent summary">
         {Array.from({ length: 3 }, (_, index) => (
           <div
             key={index}
-            className="h-36 animate-pulse rounded-2xl border border-stone-200 bg-white"
+            className={`${summaryCardClass} h-24 animate-pulse bg-stone-100 sm:h-36 sm:bg-white`}
           />
         ))}
       </div>
@@ -74,19 +80,22 @@ function AgentDashboardPage() {
 
   return (
     <div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className={summaryGridClass} aria-label="Agent account summary">
         {cards.map(({ label, value, icon: Icon }) => (
           <article
             key={label}
-            className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
+            className={summaryCardClass}
           >
-            <span className="grid size-10 place-items-center rounded-xl bg-emerald-100 text-emerald-900">
-              <Icon size={19} />
+            <span className="mx-auto grid size-8 place-items-center rounded-lg bg-emerald-100 text-emerald-900 sm:mx-0 sm:size-10 sm:rounded-xl">
+              <Icon className="size-4 sm:size-[19px]" />
             </span>
-            <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.12em] text-stone-400">
+            <p className="mt-2 min-h-8 text-[9px] font-extrabold uppercase leading-4 tracking-[0.08em] text-stone-400 sm:mt-5 sm:min-h-0 sm:text-xs sm:leading-normal sm:tracking-[0.12em]">
               {label}
             </p>
-            <p className="mt-2 text-3xl font-black tracking-[-0.04em] text-stone-900">
+            <p
+              title={String(value)}
+              className="mt-1 break-words text-[clamp(0.7rem,3.5vw,0.875rem)] font-black leading-tight tracking-[-0.04em] text-stone-900 [overflow-wrap:anywhere] sm:mt-2 sm:text-3xl sm:leading-normal"
+            >
               {value}
             </p>
           </article>
